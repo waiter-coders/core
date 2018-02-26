@@ -1,6 +1,6 @@
 {
   "name": "waiterphp/core",
-  "description": "this is test",
+  "description": "this is waiterphp core lib",
   "type": "project",
   "require": {
     "smarty/smarty": "^3.1"
