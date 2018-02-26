@@ -1,10 +1,7 @@
 {
   "name": "waiterphp/core",
-  "description": "this is waiterphp core lib",
-  "type": "project",
-  "require": {
-    "smarty/smarty": "^3.1"
-  },
+  "description": "this is test",
+  "type": "lib",
   "license": "MIT",
   "authors": [
     {
