@@ -14,7 +14,7 @@
       "function.php"
     ],
     "psr-4": {
-      "Waiterphp\\Core": "src/"
+      "Waiterphp\\Core\\": "src/"
     }
   },
   "autoload-dev": {
