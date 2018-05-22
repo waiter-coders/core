@@ -1,12 +1,25 @@
 {
   "name": "waiterphp/core",
-  "description": "this is test",
-  "type": "lib",
+  "description": "waiterphp的核心类库",
+  "type": "library",
   "license": "MIT",
   "authors": [
     {
       "name": "Tian Zheng",
       "email": "949855040@qq.com"
     }
-  ]
+  ],
+  "autoload": {
+    "files": [
+      "function.php"
+    ],
+    "psr-4": {
+      "Waiterphp\\Core": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Waiterphp\\Core\\Tests\\": "tests/"
+    }
+  }
 }

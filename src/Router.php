@@ -1,15 +1,27 @@
 <?php
+namespace Waiterphp\Core;
 class Router
 {
     public static function create()
     {
         return new RouterInstance();
     }
+
+    public static function load($file)
+    {
+
+    }
 }
 
 class RouterInstance
 {
-    private $routeTable = null;
+    private $routeTable = array();
+
+    public function setTable($routeTable)
+    {
+        $this->routeTable = $routeTable;
+        return $this;
+    }
 
     public function group()
     {
@@ -18,10 +30,14 @@ class RouterInstance
 
     public function route($signal = null)
     {
-        $signal = $this->parseSignal($signal);
-        $routeTarget = $this->searchTarget($this->routeTable, $signal);
-        $this->routeTo($routeTarget);
+        $routeTarget = $this->target($signal);
+        return $this->routeTo($routeTarget);
+    }
 
+    public function target($signal = null)
+    {
+        $signal = $this->parseSignal($signal);
+        return $this->searchTarget($this->routeTable, $signal);
     }
 
     private function fetchUrlSignal()
@@ -32,9 +48,7 @@ class RouterInstance
     private function searchTarget($routes, $signal)
     {
         foreach ($routes as $route) {
-            if (!isset($route[0]) && !isset($route['url'])) {
-                throw new \Exception('route not set');
-            }
+            assertOrException(isset($route[0]) || isset($route['url']), 'route not set');
             $pattern = isset($route[0]) ? $route[0] : $route['url'];
             if (preg_match($this->formatPattern($pattern), $signal, $matches)) {
                 return $this->generateCmd($route[1], $matches);
@@ -63,9 +77,7 @@ class RouterInstance
         $api = explode('.', $action);
         $function = array_pop($api);
         $class = implode('\\', $api);
-        if (empty($class) || empty($function)) {
-            throw new Exception('call api error:'.json_encode($api));
-        }
+        assertOrException(!empty($class) && !empty($function), 'call api error:'.json_encode($api));
         $params = array();
         if (func_num_args() > 1) {
             $params = func_get_args();
