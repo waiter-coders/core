@@ -12,4 +12,13 @@ namespace Waiterphp\Core;
 class Container
 {
 
+    public static function instance($className)
+    {
+
+    }
+
+    public static function factory($className)
+    {
+
+    }
 }
