@@ -128,9 +128,7 @@ class Dao
         if (!empty($args)) {
             $args = explode(',', implode(',', $args));
             foreach ($args as $field) {
-                if (!isset($this->daoConfig->fields[$field])) {
-                    throw new Exception('field not exist:'.$field);
-                }
+                assertOrException(isset($this->daoConfig->fields[$field]), 'field not exist:'.$field);
                 $fields[] = $field;
             }
             return $this;
@@ -303,7 +301,7 @@ class Dao
     public function updateField($id, $key, $value)
     {
         if (!$this->dataIsSafe(array($key=>$value), $message)) {
-            throw new Exception($message);
+            throw new \Exception($message);
         }
         return $this->updateById($id, array(
             $key=>$value,
@@ -322,9 +320,7 @@ class Dao
         $mainId = $this->queryTable->insert($mainInsert);
         unset($insert[$this->daoConfig->table]);
         foreach ($insert as $table=>$data) {
-            if (!isset($this->daoConfig->joinTables[$table])) { // join表转化为真表
-                throw new Exception('not set join info'.$table);
-            }
+            assertOrException(isset($this->daoConfig->joinTables[$table]), 'not set join info'.$table);// join表转化为真表
             $join = $this->daoConfig->joinTables[$table];
             $data[$join['joinField']] = $mainId;
             table($join['table'])->insert($data);
@@ -626,9 +622,7 @@ class DaoConfig
 
     public function setFieldEnum($field, $enum)
     {
-        if (!isset($this->fields[$field])) {
-            throw new Exception('not set field:'.$field);
-        }
+        assertOrException(isset($this->fields[$field]), 'not set field:'.$field);
         $this->fields[$field]['enum'] = $enum;
         $this->fields[$field]['type'] = 'enum';
     }
@@ -805,7 +799,7 @@ class DaoConfig
                 continue;
             }
 
-            throw new Exception('no look:' . $arg);
+            throw new \Exception('no look:' . $arg);
         }
     }
 

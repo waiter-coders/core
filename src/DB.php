@@ -74,7 +74,7 @@ class DB
             self::connection($name)->beginTransaction();
             $method();
             self::connection($name)->commit();
-        } catch (Exception $exception) {
+        } catch (\Exception $exception) {
             self::connection($name)->callback();
         }
     }
@@ -519,8 +519,8 @@ class PdoDatabaseInstance extends DatabaseInstance
             $statement->execute($params);
             $this->lastInsertId = $connection->lastInsertId();
             $this->lastAffectRows = $statement->rowCount();
-        }catch(PDOException $e){
-            throw new Exception('sql error:' . $this->lastSql . PHP_EOL . json_encode($this->lastParams));
+        }catch(\PDOException $e){
+            throw new \Exception('sql error:' . $this->lastSql . PHP_EOL . json_encode($this->lastParams));
         }
     }
 
@@ -570,11 +570,11 @@ class PdoDatabaseInstance extends DatabaseInstance
             $this->resetQueryStatus($sql, $params);
             $connectType = $this->useWriteServers ? 'write' : 'read';
             $statement = $this->connection($connectType)->prepare($sql);
-            $statement->setFetchMode(PDO::FETCH_ASSOC);
+            $statement->setFetchMode(\PDO::FETCH_ASSOC);
             $statement->execute($params);
             return call_user_func(array($statement, $fetchType));
-        }catch(PDOException $e){
-            throw new Exception('sql error:' . $this->lastSql . PHP_EOL . json_encode($this->lastParams));
+        }catch(\PDOException $e){
+            throw new \Exception('sql error:' . $this->lastSql . PHP_EOL . json_encode($this->lastParams));
         }
     }
 
@@ -596,7 +596,7 @@ class PdoDatabaseInstance extends DatabaseInstance
             $config = $this->selectConnectConfig($connectType);
             $dsn = sprintf('%s:host=%s;dbname=%s;port=%s;',$config['driver'], $config['host'], $config['database'], $config['port']);
             $connection = @new \PDO($dsn, $config['username'], $config['password']);
-            $connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $connection->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
             $connection->exec("SET NAMES '{$config['charset']}'");
             $this->connectionPool[$connectType] = $connection;
         }

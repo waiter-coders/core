@@ -21,7 +21,7 @@ function array_merge_recursive_cover($baseArray, $mergeArray)
 function assertOrException($boolean, $errorMessage, $code = 500)
 {
     if (!$boolean) {
-        throw new Exception($errorMessage, $code);
+        throw new \Exception($errorMessage, $code);
     }
 }
 
