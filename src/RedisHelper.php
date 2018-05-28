@@ -9,14 +9,8 @@ class RedisHelper
     public static function instance($serverKey)
     {
         if (!isset(self::$instance[$serverKey])) {
-            if (!class_exists('Redis')) {
-                throw new \Exception('Redis class not exist');
-            }
-
-            if (!isset(self::$configMap[$serverKey])) {
-                throw new \Exception('redis config not set:' . $serverKey);
-            }
-
+            assertOrException(class_exists('Redis'), 'Redis class not exist');
+            assertOrException(isset(self::$configMap[$serverKey]), 'redis config not set:' . $serverKey);
             $config = self::$configMap[$serverKey];
             self::$instance [$serverKey] = new RedisInstance($config);
         }
@@ -117,9 +111,7 @@ class RedisInstance
 
     private function newRedis($config)
     {
-        if (!isset($config['host']) || !isset($config['port'])) {
-            throw new \Exception('redis config error');
-        }
+        assertOrException(isset($config['host']) && isset($config['port']), 'redis config error');
         $redis = new \Redis();
         $redis->connect($config['host'], $config['port'], $this->connectTimeOut);
         if (isset($config['pass'])) {

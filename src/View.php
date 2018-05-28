@@ -68,9 +68,7 @@ class View
     {
         static $view = null;
         if (empty($view)) {
-            if (empty(self::$config['template']) || empty(self::$config['compile'])) {
-                throw new Exception('template path not set');
-            }
+            assertOrException(!empty(self::$config['template']) && !empty(self::$config['compile']), 'template path not set');
             $engine = isset(self::$config['type']) ? ucfirst(self::$config['type']) : 'Smarty';
             $class = '\\Vendor\\View\\' . $engine . 'Render';
             $view = new $class(self::$config);
@@ -82,7 +80,7 @@ class View
     {
         // 没有包含域名的自动包含域名
         if (strncmp ($jumpUrl, 'http', 4)) {
-            $jumpUrl = Url::baseUrl() . '/' . ltrim($jumpUrl, '/');
+//            $jumpUrl = Http::baseUrl() . '/' . ltrim($jumpUrl, '/');
         }
 
         // 直接跳转

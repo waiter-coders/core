@@ -1,15 +1,15 @@
 <?php
 namespace Waiterphp\Core;
 
-/**
- * Created by PhpStorm.
- * User: Administrator
- * Date: 2018/5/17
- * Time: 18:33
- */
 class Env
 {
-    public static function loadEnvFile($file, $path, $upNum = 0)
+
+    public static function get($envName = 'default')
+    {
+        return Container::instance('Env', array(), $envName);
+    }
+
+    public function loadEnvFile($file, $path, $upNum = 0)
     {
         $env = array();
         $searchPath = $path;
@@ -27,12 +27,7 @@ class Env
         return $env;
     }
 
-    public static function checkAndRegister($env, $checkKeys = array())
-    {
-
-    }
-
-    public static function get($key)
+    public function checkAndRegister($env, $checkKeys = array())
     {
 
     }

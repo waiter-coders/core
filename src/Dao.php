@@ -40,9 +40,8 @@ class Dao
             $this->load();
         }
         // 测试配置文件是否可用
-        if (!$this->daoConfig->canWork()) {
-            throw new Exception('dao config not enough');
-        }
+        assertOrException($this->daoConfig->canWork(), 'dao config not enough');
+
         // 初始化dao类变量
         $this->queryTable = table($this->daoConfig->table, $this->daoConfig->database);
         return true;
@@ -225,9 +224,7 @@ class Dao
             if ($selectTable == $this->daoConfig->table) { // join查询跳过主表
                 continue;
             }
-            if (!isset($this->daoConfig->joinTables[$selectTable])) { // 检查是否存在join table的配置
-                throw new Exception('no join table config:'.$selectTable);
-            }
+            assertOrException(isset($this->daoConfig->joinTables[$selectTable]), 'no join table config:'.$selectTable); // 检查是否存在join table的配置
             $join = $this->daoConfig->joinTables[$selectTable];
             $tableName = $join['table'] . ' as ' . $selectTable;
             $on = sprintf('%s.%s = %s.%s', $this->daoConfig->table, $join['mainField'], $selectTable, $join['joinField']);
@@ -265,9 +262,7 @@ class Dao
         }
 
         foreach ($data as $key=>$value) {
-            if (!isset($value[$dataField])) {
-                throw new Exception('filed not exist');
-            }
+            assertOrException(isset($value[$dataField]), 'filed not exist');
             $record = $this->queryTable->getRow(array(
                 $joinField=>$value[$dataField],
             ));
@@ -319,9 +314,7 @@ class Dao
     public function insert($insert)
     {
         $insert = array_merge($this->getDefaultValues(), $insert);
-        if (!$this->dataIsSafe($insert, $message)) {
-            throw new Exception($message);
-        }
+        assertOrException($this->dataIsSafe($insert, $message), $message);
         $insert = DaoPipeline::iteration($insert, $this->daoConfig, 'toDb');
         $insert = $this->groupByTables($insert);
         $mainInsert = $insert[$this->daoConfig->table];
@@ -433,9 +426,7 @@ class Dao
     {
         $tables = array();
         foreach ($fields as $field) {
-            if (!isset($this->daoConfig->fields[$field])) {
-                throw new Exception('field config not set:'.$field);
-            }
+            assertOrException(isset($this->daoConfig->fields[$field]), 'field config not set:'.$field);
             $config = $this->daoConfig->fields[$field];
             if (isset($config['table'])) {
                 $tables[$config['table']] = 1;
@@ -622,9 +613,7 @@ class DaoConfig
     {
         $args = func_get_args();
         $field = array_shift($args);
-        if (isset($this->fields[$field])) {
-            throw new Exception('field all ready set:'.$field);
-        }
+        assertOrException(!isset($this->fields[$field]), 'field all ready set:'.$field);
 //        $this->fields[$field]['trueField'] = $field;
         $this->analyzeFieldArgs($field, $args);
         $this->safeCheck($field);
@@ -662,9 +651,7 @@ class DaoConfig
 
     public function setFieldDefault($field, $value)
     {
-        if (!isset($this->fields[$field])) {
-            throw new Exception('not set field:'.$field);
-        }
+        assertOrException(isset($this->fields[$field]), 'not set field:'.$field);
         $this->fields[$field]['default'] = $value;
     }
 
@@ -746,20 +733,14 @@ class DaoConfig
 
     public function canWork()
     {
-        if (empty($this->table)) {
-            throw new Exception('not set table');
-        }
-        if (empty($this->primaryKey)) {
-            throw new Exception('primary key not set');
-        }
+        assertOrException(!empty($this->table), 'not set table');
+        assertOrException(!empty($this->primaryKey), 'primary key not set');
         return true;
     }
 
     public function setSoftDelete($field)
     {
-        if (!isset($this->fields[$field])) {
-            throw new Exception('soft delete field not exist:' . $field);
-        }
+        assertOrException(isset($this->fields[$field]), 'soft delete field not exist:' . $field);
         $this->softDeleteField = $field;
     }
 
@@ -832,9 +813,7 @@ class DaoConfig
     {
         $params = $this->fields[$field];
         if ($params['type'] == 'varchar') {
-            if (!isset($params['length'])) {
-                throw new Exception('varchar mast set length:'.$field);
-            }
+            assertOrException(isset($params['length']), 'varchar mast set length:'.$field);
         }
     }
 
