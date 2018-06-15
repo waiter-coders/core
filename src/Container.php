@@ -9,7 +9,7 @@ class Container
     // 单例工具
     public static function instance($class, $params = array(), $topic = 'default')
     {
-        $class = (strpos($class, '.') > 0) ? Dot::dotToClass($class) : $class;
+        $class = (strpos($class, '.') > 0) ? dotToClass($class) : $class;
         if (isset(self::$instances[$class][$topic])) {
             return self::$instances[$class][$topic];
         }
@@ -19,7 +19,7 @@ class Container
 
     public static function factory($class, $params = array())
     {
-        $class = (strpos($class, '.') > 0) ? Dot::dotToClass($class) : $class;
-        return new $class($params);
+        $class = (strpos($class, '.') > 0) ? dotToClass($class) : $class;
+        return empty($params) ? new $class() : new $class($params);
     }
 }

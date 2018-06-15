@@ -4,17 +4,9 @@ class Router
 {
     public static function create()
     {
-        return new RouterInstance();
+        return new self();
     }
 
-    public static function load($file)
-    {
-
-    }
-}
-
-class RouterInstance
-{
     private $routeTable = array();
 
     public function setTable($routeTable)
@@ -36,8 +28,13 @@ class RouterInstance
 
     public function target($signal = null)
     {
-        $signal = $this->parseSignal($signal);
+        $signal = $this->parseSignal($signal);var_dump($this->routeTable);
         return $this->searchTarget($this->routeTable, $signal);
+    }
+
+    public function setRequest($request)
+    {
+        return $this;
     }
 
     private function fetchUrlSignal()
@@ -46,7 +43,7 @@ class RouterInstance
     }
 
     private function searchTarget($routes, $signal)
-    {
+    {var_dump($routes);
         foreach ($routes as $route) {
             assertOrException(isset($route[0]) || isset($route['url']), 'route not set');
             $pattern = isset($route[0]) ? $route[0] : $route['url'];

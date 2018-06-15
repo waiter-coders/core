@@ -3,32 +3,46 @@ namespace Waiterphp\Core;
 
 class Env
 {
-
-    public static function get($envName = 'default')
+    public static function instance($envName = 'default')
     {
-        return Container::instance('Env', array(), $envName);
+        static $instances = array();
+        if (!isset($instances[$envName])) {
+            $instances[$envName] = new self();
+        }
+        return $instances[$envName];
     }
 
-    public function loadEnvFile($file, $path, $upNum = 0)
+    private $config = array();
+    private $action = array();
+
+    public function set($env)
     {
-        $env = array();
-        $searchPath = $path;
-        do {
-            assertOrException(is_dir($searchPath), 'search path not exist');
-            $searchFile = $searchPath . DIRECTORY_SEPARATOR . $file;
-            if (file_exists($searchFile)) {
-                $env = require $searchFile;
-                assertOrException(is_array($env), 'file config error' . $searchFile);
+        $this->config = $env;
+    }
+
+    public function get($docIndex)
+    {
+        return findDataByDot($docIndex, $this->config);
+    }
+
+    public function bind($tab, $action)
+    {
+        $this->action[$tab][] = $action;
+    }
+
+    public function trigger($tab, $params = array())
+    {
+        if (!isset($this->action[$tab])) {
+            return false;
+        }
+        foreach ($this->action[$tab] as $action) {
+            $result = call_user_func_array($action, $params);
+            if (!$result) {
                 break;
             }
-            $searchPath = dirname($searchPath);
-            $upNum--;
-        } while ($upNum > 0);
-        return $env;
+        }
+        return true;
     }
 
-    public function checkAndRegister($env, $checkKeys = array())
-    {
 
-    }
 }

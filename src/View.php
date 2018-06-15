@@ -18,7 +18,7 @@ class View
     private static $config = null;
     private static $params = array();
 
-    public static function config(array $configs)
+    public static function register(array $configs)
     {
         self::$config = $configs;
     }

@@ -38,10 +38,6 @@ class DB
     private static $connection = array();
     private static $defaultName = 'default';
 
-    public static function config($config)
-    {
-        self::register($config);
-    }
 
     public static function connect($config, $name = null)
     {
