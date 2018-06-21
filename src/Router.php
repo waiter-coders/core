@@ -28,7 +28,7 @@ class Router
 
     public function target($signal = null)
     {
-        $signal = $this->parseSignal($signal);var_dump($this->routeTable);
+        $signal = $this->parseSignal($signal);
         return $this->searchTarget($this->routeTable, $signal);
     }
 
@@ -43,7 +43,7 @@ class Router
     }
 
     private function searchTarget($routes, $signal)
-    {var_dump($routes);
+    {
         foreach ($routes as $route) {
             assertOrException(isset($route[0]) || isset($route['url']), 'route not set');
             $pattern = isset($route[0]) ? $route[0] : $route['url'];

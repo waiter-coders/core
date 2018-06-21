@@ -1,84 +1,69 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Administrator
- * Date: 2018/6/14
- * Time: 18:29
- */
-
 namespace Waiterphp\Core;
-
 
 trait DaoTrait
 {
     /**
      * 对外访问接口
      */
-    protected $queryTable = '';
-    protected $daoConfig = '';
-    private $tableFields = array();
 
-    public function __construct(DaoConfig $daoConfig = null)
-    {
-        // 没有config的则通过load加载子类初始化
-        $this->daoConfig = $daoConfig;
-        if (empty($this->daoConfig)) {
-            $this->daoConfig = new DaoConfig();
-            $this->load();
-        }
-        // 测试配置文件是否可用
-        if (!$this->daoConfig->canWork()) {
-            throw new Exception('dao config not enough');
-        }
-        // 初始化dao类变量
-        $this->queryTable = table($this->daoConfig->table, $this->daoConfig->database);
-        return true;
-    }
 
-    protected function load()
-    {
-        return false;
-    }
+    abstract protected function initDao();
+
+
 
     /****************************
      * 虚拟表结构相关接口
      ****************************/
 
+    private $_daoConfig = '';
+    private $tableFields = array();
+
+    protected function daoConfig()
+    {
+        if (empty($this->_daoConfig)) {
+            $this->_daoConfig = $this->initDao(new DaoConfig());
+            assertOrException($this->_daoConfig instanceof DaoConfig, 'initDao mast return daoConfig object');
+            assertOrException($this->_daoConfig->canWork(), 'dao config not enough');
+        }
+        return $this->_daoConfig;
+    }
+
     // 获取表字段
     public function getAllFields($hasInfo = false)
     {
-        return $hasInfo ? $this->daoConfig->fields : array_keys($this->daoConfig->fields);
+        return $hasInfo ? $this->daoConfig()->fields : array_keys($this->daoConfig()->fields);
     }
 
     public function getBaseFields($hasInfo = false)
     {
-        $reverseHidden = array_flip($this->daoConfig->detailFields);
-        $baseFields = array_diff_key($this->daoConfig->fields, $reverseHidden);
+        $reverseHidden = array_flip($this->daoConfig()->detailFields);
+        $baseFields = array_diff_key($this->daoConfig()->fields, $reverseHidden);
         return $hasInfo ? $baseFields : array_keys($baseFields);
     }
 
     public function isReadonly($field)
     {
-        return isset($this->daoConfig->readonlyFields[$field]);
+        return isset($this->daoConfig()->readonlyFields[$field]);
     }
 
     public function getDetailFields($hasInfo = false)
     {
-        $reverseHidden = array_flip($this->daoConfig->detailFields);
-        $extractFields = array_intersect_key($this->daoConfig->fields, $reverseHidden);
+        $reverseHidden = array_flip($this->daoConfig()->detailFields);
+        $extractFields = array_intersect_key($this->daoConfig()->fields, $reverseHidden);
         return $hasInfo ? $extractFields : array_keys($extractFields);
     }
 
     // 获取表主键
     public function primaryKey()
     {
-        return $this->daoConfig->primaryKey;
+        return $this->daoConfig()->primaryKey;
     }
 
     // 获取所有字段的过滤器
     public function getFilters()
     {
-        return $this->daoConfig->filters;
+        return $this->daoConfig()->filters;
     }
 
 
@@ -86,48 +71,46 @@ trait DaoTrait
      * 设置查询字段
      *************************/
 
-    // 多次存入，一次取出
-    public function with($args = null)
-    {
-        $args = is_array($args) ? $args : func_get_args();
-        if (empty($args)) {
-            return $this;
-        }
-        $fields = array();
-        $tables = array_unique(explode(',', implode(',', $args)));
-        foreach ($tables as $table) {
-            $fields = array_merge($fields, $this->tableFields($table));
-        }
-        return $this->field($fields);
-    }
-
-    // 获取所有字段
-    public function withAll()
-    {
-        $tables = array_keys($this->daoConfig->joinTables);
-        return call_user_func_array(array($this, 'with'), $tables);
-    }
+//    // 多次存入，一次取出
+//    public function with($args = null)
+//    {
+//        $args = is_array($args) ? $args : func_get_args();
+//        if (empty($args)) {
+//            return $this;
+//        }
+//        $fields = array();
+//        $tables = array_unique(explode(',', implode(',', $args)));
+//        foreach ($tables as $table) {
+//            $fields = array_merge($fields, $this->tableFields($table));
+//        }
+//        return $this->field($fields);
+//    }
+//
+//    // 获取所有字段
+//    public function withAll()
+//    {
+//        $tables = array_keys($this->daoConfig()->joinTables);
+//        return call_user_func_array(array($this, 'with'), $tables);
+//    }
 
     // 获取特定字段
-    public function field($args = null)
-    {
-        static $fields = array();
-        $args = is_array($args) ? $args : func_get_args();
-        if (!empty($args)) {
-            $args = explode(',', implode(',', $args));
-            foreach ($args as $field) {
-                if (!isset($this->daoConfig->fields[$field])) {
-                    throw new Exception('field not exist:'.$field);
-                }
-                $fields[] = $field;
-            }
-            return $this;
-        } else {
-            $tmp = $fields;
-            $fields = array();
-            return $tmp;
-        }
-    }
+//    public function field($args = null)
+//    {
+//        static $fields = array();
+//        $args = is_array($args) ? $args : func_get_args();
+//        if (!empty($args)) {
+//            $args = explode(',', implode(',', $args));
+//            foreach ($args as $field) {
+//                assertOrException(isset($this->daoConfig()->fields[$field]), 'field not exist:'.$field);
+//                $fields[] = $field;
+//            }
+//            return $this;
+//        } else {
+//            $tmp = $fields;
+//            $fields = array();
+//            return $tmp;
+//        }
+//    }
 
 
     /**************************
@@ -154,27 +137,27 @@ trait DaoTrait
         return $this->getList(0, $length, $where, $order);
     }
 
-    public function paging($pageNum, $pageSize, $where = array(), $order = '')
-    {
-        $totalNum = $this->queryTable->count($this->daoConfig->primaryKey, $this->covertCondition($where));
-        if ($totalNum == 0) {
-            return array(
-                'list'=>array(),
-                'totalNum'=>0,
-            );
-        }
-        $start = ($pageNum - 1) * $pageSize;
-        $list = $this->getList($start, $pageSize, $where, $order);
-        return array(
-            'list'=>$list,
-            'totalNum'=>ceil($totalNum / $pageSize),
-        );
-    }
+//    public function paging($pageNum, $pageSize, $where = array(), $order = '')
+//    {
+//        $totalNum = $this->table->count($this->daoConfig()->primaryKey, $this->covertCondition($where));
+//        if ($totalNum == 0) {
+//            return array(
+//                'list'=>array(),
+//                'totalNum'=>0,
+//            );
+//        }
+//        $start = ($pageNum - 1) * $pageSize;
+//        $list = $this->getList($start, $pageSize, $where, $order);
+//        return array(
+//            'list'=>$list,
+//            'totalNum'=>ceil($totalNum / $pageSize),
+//        );
+//    }
 
     // 根据主键id获取单条记录
     public function infoById($id)
     {
-        $data = $this->getList(0, 1, array($this->daoConfig->primaryKey=>$id));
+        $data = $this->getList(0, 1, array($this->daoConfig()->primaryKey=>$id));
         return (!empty($data)) ? $data[0] : array();
     }
 
@@ -187,75 +170,67 @@ trait DaoTrait
 
     public function detail($id)
     {
-        $data = $this->withAll()->getList(0, 1, array($this->daoConfig->primaryKey=>$id));
+        $data = $this->withAll()->getList(0, 1, array($this->daoConfig()->primaryKey=>$id)); // ???
         return (!empty($data)) ? $data[0] : array();
     }
 
-    private function getList($offset, $length, $where = array(), $order = '')
+    private function getList($offset, $length, $where = array(), $orderBy = '')
     {
-        $where['limit'] = $offset . ',' . $length;
-        if (empty($order)) {
-            $order = isset($this->daoConfig->defaultQuery['order']) ? $this->daoConfig->defaultQuery['order'] : $this->primaryKey() . ' desc';
-        }
-        $where['order'] = $order;
-
         // 查询字段处理
-        $fields = $this->tableFields($this->daoConfig->table);
-        $fields = array_unique(array_merge($fields, $this->field()));
-        $condition = $where;
-        $condition['field'] = implode(',', $this->toTrueFields($fields));
+        $fields = $this->tableFields($this->daoConfig()->table);
+//        $fields = array_unique(array_merge($fields, $this->field()));
 
         // 表对象处理
-        $table = $this->queryTable;
+        $query = table($this->_daoConfig->table, $this->_daoConfig->database);
         $selectTables = $this->fieldsTables($fields);
         foreach ($selectTables as $selectTable) {
-            if ($selectTable == $this->daoConfig->table) { // join查询跳过主表
-                continue;
-            }
-            if (!isset($this->daoConfig->joinTables[$selectTable])) { // 检查是否存在join table的配置
-                throw new Exception('no join table config:'.$selectTable);
-            }
-            $join = $this->daoConfig->joinTables[$selectTable];
+            // join查询跳过主表
+            if ($selectTable == $this->daoConfig()->table) { continue;}
+            // 检查是否存在join table的配置
+            assertOrException(isset($this->daoConfig()->joinTables[$selectTable]), 'no join table config:'.$selectTable);
+            $join = $this->daoConfig()->joinTables[$selectTable];
             $tableName = $join['table'] . ' as ' . $selectTable;
-            $on = sprintf('%s.%s = %s.%s', $this->daoConfig->table, $join['mainField'], $selectTable, $join['joinField']);
-            $table = $table->leftJoin($tableName)->on($on);
+            $on = sprintf('%s.%s = %s.%s', $this->daoConfig()->table, $join['mainField'], $selectTable, $join['joinField']);
+            $query = $query->leftJoin($tableName)->on($on);
         }
 
         // 查询条件处理
-        $condition = $this->covertCondition($condition);
-        $condition = array_merge($this->daoConfig->defaultQuery, $condition);
-        if (!empty($this->daoConfig->softDeleteField)) {
-            $condition[$this->daoConfig->softDeleteField] = 0;
+        $where = $this->covertCondition($where);
+        $where = array_merge($this->daoConfig()->defaultQuery, $where);
+        if (!empty($this->daoConfig()->softDeleteField)) {
+            $where[$this->daoConfig()->softDeleteField] = 0;
         }
-
-        // 查询
-        $data = $table->where($condition)->fetchAll();
+        if (empty($orderBy)) {
+            $orderBy = isset($this->daoConfig()->defaultQuery['order']) ? $this->daoConfig()->defaultQuery['order'] : $this->primaryKey() . ' desc';
+        }
+        $data = $query->select($fields)->where($where)->orderBy($orderBy)->limit($length, $offset)->fetchAll();
         return $data;
-        return DaoPipeline::iteration($data, $this->daoConfig, 'toShow');
+//        return DaoPipeline::iteration($data, $this->daoConfig(), 'toShow');
     }
 
     public function appendInfoByIds($fields, array &$data, $dataField = null, $joinField = null)
     {
         if (empty($dataField)) {
-            $dataField = $this->daoConfig->primaryKey;
+            $dataField = $this->daoConfig()->primaryKey;
         }
         if (empty($joinField)) {
-            $joinField = $this->daoConfig->primaryKey;
+            $joinField = $this->daoConfig()->primaryKey;
         }
 
         // 检查是否有字段重名
         $fieldsArray = explode(',', $fields);
         foreach ($fieldsArray as $field) {
             if (isset($data[0][$field])) {
-                throw new Exception('name exist');
+                throw new \Exception('name exist');
             }
         }
 
+        $query = table($this->_daoConfig->table, $this->_daoConfig->database);
         foreach ($data as $key=>$value) {
             if (!isset($value[$dataField])) {
-                throw new Exception('filed not exist');
+                throw new \Exception('filed not exist');
             }
-            $record = $this->queryTable->getRow(array(
+            $record = $query->getRow(array(
                 $joinField=>$value[$dataField],
             ));
             $data[$key] = $value + $record;
@@ -271,20 +246,21 @@ trait DaoTrait
     public function update($update)
     {
 
-        $update = DaoPipeline::iteration($update, $this->daoConfig, 'toDb');
-        return $this->queryTable->update($update);
+        $update = DaoPipeline::iteration($update, $this->daoConfig(), 'toDb');
+        $query = table($this->_daoConfig->table, $this->_daoConfig->database);
+        return $query->update($update);
     }
 
     // 根据主键id更新信息
     public function updateById($id, $update)
     {
-        $update = DaoPipeline::iteration($update, $this->daoConfig, 'toDb');
+        $update = DaoPipeline::iteration($update, $this->daoConfig(), 'toDb');
         $update = $this->groupByTables($update);
         foreach ($update as $table=>$data) {
-            $idField = $this->daoConfig->primaryKey;
-            if (isset($this->daoConfig->joinTables[$table])) { // join表转化为真表
-                $idField = $this->daoConfig->joinTables[$table]['joinField'];
-                $table = $this->daoConfig->joinTables[$table]['table'];
+            $idField = $this->daoConfig()->primaryKey;
+            if (isset($this->daoConfig()->joinTables[$table])) { // join表转化为真表
+                $idField = $this->daoConfig()->joinTables[$table]['joinField'];
+                $table = $this->daoConfig()->joinTables[$table]['table'];
             }
             table($table)->where(array($idField=>$id))->update($data);
         }
@@ -295,7 +271,7 @@ trait DaoTrait
     public function updateField($id, $key, $value)
     {
         if (!$this->dataIsSafe(array($key=>$value), $message)) {
-            throw new Exception($message);
+            throw new \Exception($message);
         }
         return $this->updateById($id, array(
             $key=>$value,
@@ -307,19 +283,20 @@ trait DaoTrait
     {
         $insert = array_merge($this->getDefaultValues(), $insert);
         if (!$this->dataIsSafe($insert, $message)) {
-            throw new Exception($message);
+            throw new \Exception($message);
         }
-        $insert = DaoPipeline::iteration($insert, $this->daoConfig, 'toDb');
+        $insert = DaoPipeline::iteration($insert, $this->daoConfig(), 'toDb');
         $insert = $this->groupByTables($insert);
-        $mainInsert = $insert[$this->daoConfig->table];
-        $mainInsert = array_merge($mainInsert, $this->daoConfig->defaultQuery);
-        $mainId = $this->queryTable->insert($mainInsert);
-        unset($insert[$this->daoConfig->table]);
+        $mainInsert = $insert[$this->daoConfig()->table];
+        $mainInsert = array_merge($mainInsert, $this->daoConfig()->defaultQuery);
+        $query = table($this->_daoConfig->table, $this->_daoConfig->database);
+        $mainId = $query->insert($mainInsert);
+        unset($insert[$this->daoConfig()->table]);
         foreach ($insert as $table=>$data) {
-            if (!isset($this->daoConfig->joinTables[$table])) { // join表转化为真表
-                throw new Exception('not set join info'.$table);
+            if (!isset($this->daoConfig()->joinTables[$table])) { // join表转化为真表
+                throw new \Exception('not set join info'.$table);
             }
-            $join = $this->daoConfig->joinTables[$table];
+            $join = $this->daoConfig()->joinTables[$table];
             $data[$join['joinField']] = $mainId;
             table($join['table'])->insert($data);
         }
@@ -343,22 +320,23 @@ trait DaoTrait
     public function delete($id)
     {
         // 软删除
-        if (!empty($this->daoConfig->softDeleteField)) {
+        if (!empty($this->daoConfig()->softDeleteField)) {
             return $this->updateById($id, array(
-                $this->daoConfig->softDeleteField=>1,
+                $this->daoConfig()->softDeleteField=>1,
             ));
         }
         // 硬删除
         else {
-            return $this->queryTable->delete(array(
-                $this->daoConfig->primaryKey=>$id,
+            $query = table($this->_daoConfig->table, $this->_daoConfig->database);
+            return $query->delete(array(
+                $this->daoConfig()->primaryKey=>$id,
             ));
         }
     }
 
     public function setDefaultQuery($condition)
     {
-        $this->daoConfig->defaultQuery = $condition;
+        $this->daoConfig()->defaultQuery = $condition;
     }
 
     private function dataIsSafe(array $values, &$message = '')
@@ -368,7 +346,7 @@ trait DaoTrait
 //            if (isset($this->get)) disable过滤
 
             // 过滤器合法检测
-            if (isset($this->daoConfig->filters[$field])) {
+            if (isset($this->daoConfig()->filters[$field])) {
 
             }
         }
@@ -396,7 +374,7 @@ trait DaoTrait
     private function getDefaultValues()
     {
         $values = array();
-        foreach ($this->daoConfig->fields as $field=>$params) {
+        foreach ($this->daoConfig()->fields as $field=> $params) {
             if (isset($params['default'])) {
                 $values[$field] = $params['default'];
             }
@@ -407,8 +385,8 @@ trait DaoTrait
     private function tableFields($table)
     {
         if (empty($this->tableFields)) {
-            $mainTable = $this->daoConfig->table;
-            foreach ($this->daoConfig->fields as $field=>$params) {
+            $mainTable = $this->daoConfig()->table;
+            foreach ($this->daoConfig()->fields as $field=> $params) {
                 $tableName = isset($params['table']) ? $params['table'] : $mainTable;
                 $this->tableFields[$tableName][] = $field;
             }
@@ -420,10 +398,10 @@ trait DaoTrait
     {
         $tables = array();
         foreach ($fields as $field) {
-            if (!isset($this->daoConfig->fields[$field])) {
-                throw new Exception('field config not set:'.$field);
+            if (!isset($this->daoConfig()->fields[$field])) {
+                throw new \Exception('field config not set:'.$field);
             }
-            $config = $this->daoConfig->fields[$field];
+            $config = $this->daoConfig()->fields[$field];
             if (isset($config['table'])) {
                 $tables[$config['table']] = 1;
             }
@@ -445,21 +423,17 @@ trait DaoTrait
 
     private function trueField($field)
     {
-        $params = $this->daoConfig->fields[$field];
+        $params = $this->daoConfig()->fields[$field];
         if (isset($params['isVirtual']) &&  $params['isVirtual'] == true) {
             return null;
         }
-        $table = isset($params['table']) ? $params['table'] : $this->daoConfig->table;
+        $table = isset($params['table']) ? $params['table'] : $this->daoConfig()->table;
         return isset($params['trueField']) ? $params['trueField'] : $table . '.' . $field;
     }
 
     private function covertCondition($condition)
     {
-        $others = array('field'=>'', 'order'=>'', 'group'=>'', 'limit'=>'');
         foreach ($condition as $field=>$params) {
-            if (isset($others[$field])) {
-                continue;
-            }
             list($trueField, $tip) = explode(' ', $field . ' ');
             $trueField = trim($trueField);$tip = trim($tip);
             $trueField = trim($trueField);$tip = trim($tip);
@@ -468,7 +442,7 @@ trait DaoTrait
             unset($condition[$field]);
             $condition[$trueField] = $params;
         }
-        $condition = array_merge($this->daoConfig->defaultQuery, $condition);
+        $condition = array_merge($this->daoConfig()->defaultQuery, $condition);
         return $condition;
     }
 
@@ -476,9 +450,9 @@ trait DaoTrait
     {
         $dataByTable = array();
         foreach ($data as $field=>$value) {
-            $table = $this->daoConfig->table;
-            if (isset($this->daoConfig->fields[$field]['trueField'])) {
-                list($table, $field) = explode('.', $this->daoConfig->fields[$field]['trueField']);
+            $table = $this->daoConfig()->table;
+            if (isset($this->daoConfig()->fields[$field]['trueField'])) {
+                list($table, $field) = explode('.', $this->daoConfig()->fields[$field]['trueField']);
             }
             $dataByTable[$table][$field] = $value;
         }
@@ -523,8 +497,155 @@ trait DaoTrait
             $isLegal = DaoFilter::get($filter)->check($value, $params);
             if (!$isLegal) {
                 $message = DaoFilter::get($filter)->errorMessage();
-                throw new Exception($message);
+                throw new \Exception($message);
             }
         }
+    }
+}
+
+
+class DaoFilter
+{
+    private static $defaultMethod = array('regex'=>1);
+
+    public static function check($action, $value, $params)
+    {
+        if (is_string($action)) {
+            if (!isset(self::$defaultMethod[$action])) {
+                throw new \Exception('not has action:' . $action);
+            }
+            return call_user_func(array('DaoFilter', $action), $value, $params);
+        }
+        if (is_callable($action)) {
+            return $action($value, $params);
+        }
+        return false;
+    }
+
+    public static function regex($value, $params)
+    {
+        $pattern = $params['regex'];
+        return preg_match($pattern, $value);
+    }
+}
+
+abstract class DaoPipeline
+{
+    abstract public function toShow($value);
+    abstract public function toDb($value);
+
+    public static function iteration($values, $config, $direction)
+    {
+        // 空值处理
+        if (empty($values)) {
+            return array();
+        }
+        // 多条记录处理
+        if (isset($values[0]) && is_array($values[0])) {
+            foreach ($values as $key=>$value) {
+                $values[$key] = self::iteration($value, $config, $direction);
+            }
+            return $values;
+        }
+        // 单条记录处理
+        foreach ($values as $field=>$value) {
+            if (isset($config->fields[$field]['pipeline'])) {
+                $class = self::fieldInstance($config->fields[$field]['pipeline']);
+                $values[$field] = $class->$direction($value);
+            }
+        }
+        return $values;
+    }
+
+    private static function fieldInstance($pipeline)
+    {
+        static $classes = array();
+        if (!isset($classes[$pipeline])) {
+            $Pipeline = ucfirst($pipeline) . 'Pipeline';
+            $classes[$pipeline] = new $Pipeline();
+        }
+        return $classes[$pipeline];
+    }
+}
+
+class IntPipeline extends DaoPipeline
+{
+    public function toShow($value)
+    {
+        return $value;
+    }
+
+    public function toDb($value)
+    {
+        return (int)$value;
+    }
+}
+
+
+class StringPipeline extends DaoPipeline
+{
+    public function toShow($value)
+    {
+        return preg_replace("/[\r|\n]+/", '', stripslashes($value));
+    }
+
+    public function toDb($value)
+    {
+        $value = addslashes($value);
+        return trim($value);
+    }
+}
+
+class TextPipeline extends DaoPipeline
+{
+    public function toShow($value)
+    {
+        return stripslashes($value);
+    }
+
+    public function toDb($value)
+    {
+        return trim($value);
+    }
+}
+
+
+class HtmlPipeline extends DaoPipeline
+{
+    public function toShow($value)
+    {
+        return stripslashes($value);
+    }
+
+    public function toDb($value)
+    {
+        $value = addslashes($value);
+        return trim($value);
+    }
+}
+
+class JsonPipeline extends DaoPipeline
+{
+    public function toShow($value)
+    {
+        return json_decode($value, true);
+    }
+
+    public function toDb($value)
+    {
+        return json_encode($value);
+    }
+}
+
+class TimestampPipeline extends DaoPipeline
+{
+    public function toDb($value)
+    {
+        return $value;
+    }
+
+    public function toShow($value)
+    {
+        return $value;
     }
 }

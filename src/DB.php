@@ -150,7 +150,7 @@ class DB_Query
      */
     public function select($columns)
     {
-        $this->columns = $columns;
+        $this->columns = is_array($columns) ? implode(',', $columns) : $columns;
         return $this;
     }
 
@@ -178,9 +178,9 @@ class DB_Query
         return $this;
     }
 
-    public function limit($limit)
+    public function limit($limit, $offset = null)
     {
-        $this->limit = $limit;
+        $this->limit = empty($offset) ? $limit : $offset . ',' . $limit;
         return $this;
     }
 

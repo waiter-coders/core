@@ -72,11 +72,11 @@ function findDataByDot($dot, $data)
  */
 
 // 表访问
-function run($dotAction, $params)
+function run($action, $params)
 {
-    list($class, $method) = dotToMethod($dotAction);
+    list($class, $method) = dotToMethod($action);
     $object = new $class($params);
-    return call_user_func_array(array($object, $method), array());
+    return call_user_func_array(array($object, $method), $params);
 }
 
 function table($table, $name = 'default') // 数据库访问
@@ -86,10 +86,20 @@ function table($table, $name = 'default') // 数据库访问
 
 function container($environment)
 {
-    return \Waiterphp\Core\Env::instance($environment);
+    return \Waiterphp\Core\Container::instance($environment);
 }
 
 function loadConfig($files, $basePaths)
 {
     return \Waiterphp\Core\Config::loadFiles($files, $basePaths);
+}
+
+function putToQueue()
+{
+
+}
+
+function fetchFromQueue()
+{
+
 }
