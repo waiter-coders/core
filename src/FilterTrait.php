@@ -22,7 +22,7 @@ trait FilterTrait
 
     public function getArray($key, $default = null)
     {
-        return isset($this->filterData[$key]) ? $this->filterData[$key] : $default;
+        return isset($this->filterData[$key]) ? is_string($this->filterData[$key]) ? json_decode($this->filterData[$key], true) : $this->filterData[$key] : $default;
     }
 
     public function getString($key, $default = null)

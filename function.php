@@ -76,7 +76,7 @@ function run($action, $params)
 {
     list($class, $method) = dotToMethod($action);
     $object = new $class($params);
-    return call_user_func_array(array($object, $method), $params);
+    return call_user_func_array(array($object, $method), array());
 }
 
 function table($table, $name = 'default') // 数据库访问
@@ -84,9 +84,9 @@ function table($table, $name = 'default') // 数据库访问
     return \Waiterphp\Core\DB::table($table, $name);
 }
 
-function container($environment)
+function scenes($environment)
 {
-    return \Waiterphp\Core\Container::instance($environment);
+    return \Waiterphp\Core\Scenes::instance($environment);
 }
 
 function loadConfig($files, $basePaths)
@@ -102,4 +102,14 @@ function putToQueue()
 function fetchFromQueue()
 {
 
+}
+
+function findArrayItem($array, $key, $value)
+{
+    foreach ($array as $item) {
+        if (isset($item[$key]) && $item[$key] == $value) {
+            return $item;
+        }
+    }
+    return null;
 }

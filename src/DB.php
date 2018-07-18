@@ -68,10 +68,12 @@ class DB
     {
         try {
             self::connection($name)->beginTransaction();
-            $method();
+            $result = $method();
             self::connection($name)->commit();
+            return $result;
         } catch (\Exception $exception) {
-            self::connection($name)->callback();
+            self::connection($name)->rollBack();
+            throw $exception;
         }
     }
 
@@ -511,7 +513,7 @@ class PdoDatabaseInstance extends DatabaseInstance
             $this->resetQueryStatus($sql, $params);
             $connection = $this->connection('write');
             $statement = $connection->prepare($sql);
-            $statement->setFetchMode(PDO::FETCH_ASSOC);
+            $statement->setFetchMode(\PDO::FETCH_ASSOC);
             $statement->execute($params);
             $this->lastInsertId = $connection->lastInsertId();
             $this->lastAffectRows = $statement->rowCount();

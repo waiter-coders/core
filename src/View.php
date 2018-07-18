@@ -56,7 +56,7 @@ class View
         $view->render($template, $params);
     }
 
-    public function fetch($template, $params)
+    public static function fetch($template, $params = array())
     {
         $view = self::instance();
         $params = (!empty(self::$config['init'])) ? self::$config['init'] : array();
