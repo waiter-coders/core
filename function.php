@@ -97,3 +97,4 @@ function env_trigger($tab, $params = array())
 {
     \Waiterphp\Core\Env::instance()->trigger($tab, $params);
 }
+ 
