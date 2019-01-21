@@ -54,6 +54,11 @@ function table($table, $name = 'default') // 数据库访问
     return \Waiterphp\Core\Lib\DB::table($table, $name);
 }
 
+function request()
+{
+
+}
+
 // 工厂生产类的快捷函数
 function factory($class, $params = array())
 {
@@ -98,3 +103,8 @@ function env_trigger($tab, $params = array())
     \Waiterphp\Core\Lib\Env::instance()->trigger($tab, $params);
 }
  
+
+function build()
+{
+    
+}

@@ -1,6 +1,7 @@
 <?php
+namespace Waiterphp\Core\Cache;
 
-class RedisCache
+class Redis
 {
     static private $slaveMethod = array(
         'get' => '',

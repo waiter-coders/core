@@ -13,11 +13,7 @@
       "function.php"
     ],
     "psr-4": {
-      "Waiterphp\\Core\\Lib\\": "src/lib",
-      "Waiterphp\\Core\\Dao\\": "src/dao",
-      "Waiterphp\\Core\\Filter\\": "src/filter",
-      "Waiterphp\\Core\\Builder\\": "src/builder",
-      "Waiterphp\\Core\\View\\": "src/view"
+      "Waiterphp\\Core\\": "src"
     }
   },
   "autoload-dev": {

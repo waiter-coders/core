@@ -1,4 +1,5 @@
 <?php
+namespace Waiterphp\Core\Base;
 
 class Dot
 {

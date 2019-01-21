@@ -1,6 +1,7 @@
 <?php
+namespace Waiterphp\Core\Cache;
 
-class FileCache
+class File
 {
     private static $path = '';
 

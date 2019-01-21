@@ -1,7 +1,7 @@
 <?php
-namespace Waiterphp\Core\Lib;
+namespace Waiterphp\Core\Base;
 
-class Env
+class Environment
 {
     public static function instance()
     {

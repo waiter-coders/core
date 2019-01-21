@@ -1,5 +1,5 @@
 <?php
-namespace Waiterphp\Core\Lib;
+namespace Waiterphp\Core\Base;
 
 class Factory
 {
