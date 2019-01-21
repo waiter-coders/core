@@ -5,8 +5,7 @@
   "license": "MIT",
   "authors": [
     {
-      "name": "Tian Zheng",
-      "email": "949855040@qq.com"
+      "name": "Tian Zheng"
     }
   ],
   "autoload": {

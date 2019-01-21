@@ -139,7 +139,7 @@ class DB_Query
     public $groupBy = '';
     public $having ='';
     public $orderBy = '';
-    public $limit = '0, 100'; // 默认限制，最大一百条
+    public $limit = '0, 10000'; // 默认限制，最大一百条
 
     public function __construct($table, $connection)
     {
@@ -420,7 +420,7 @@ class DB_Where
 
     private static function parseWhere($key, $value)
     {
-        if (is_int($key)) { // 无参数
+        if (is_numeric($key)) { // 无参数 
             return array($value, array());
         }
         $value = !is_array($value) ? array($value) : $value; // 参数都转化为数组，方便参数间的合并

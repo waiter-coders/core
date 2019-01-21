@@ -2,44 +2,28 @@
 namespace Waiterphp\Core;
 class Router
 {
-    public static function create()
-    {
-        return new self();
-    }
-
     private $routeTable = array();
-
-    public function setTable($routeTable)
-    {
-        $this->routeTable = $routeTable;
-        return $this;
-    }
 
     public function group()
     {
         return $this;
     }
 
-    public function route($signal = null)
+    public function set($routeTable)
     {
-        $routeTarget = $this->target($signal);
-        return $this->routeTo($routeTarget);
+        $this->routeTable = $routeTable;
     }
 
-    public function target($signal = null)
+    public function route($signal, $params = array())
+    {
+        $routeTarget = $this->target($signal);
+        return $this->routeTo($routeTarget, $params);
+    }
+
+    public function target($signal)
     {
         $signal = $this->parseSignal($signal);
         return $this->searchTarget($this->routeTable, $signal);
-    }
-
-    public function setRequest($request)
-    {
-        return $this;
-    }
-
-    private function fetchUrlSignal()
-    {
-        return isset($_SERVER['PATH_INFO']) ? trim($_SERVER['PATH_INFO'], '/') : '';
     }
 
     private function searchTarget($routes, $signal)
@@ -61,37 +45,23 @@ class Router
 
     private function generateCmd($action, $matches)
     {
-        array_shift($matches);
         foreach ($matches as $key=>$match) {
-            $action = str_replace('$'.$key, $match, $action);
+            if ($key > 0) {
+                $action = str_replace('$'.$key, $match, $action);
+            }
         }
         return $action;
     }
 
-    private function routeTo($action)
+    private function routeTo($action, $params = array())
     {
-        // 转化为可执行对象
-        $api = explode('.', $action);
-        $function = array_pop($api);
-        $class = implode('\\', $api);
-        assertOrException(!empty($class) && !empty($function), 'call api error:'.json_encode($api));
-        $params = array();
-        if (func_num_args() > 1) {
-            $params = func_get_args();
-            array_shift($params);
-        }
-        $object = new $class();
-        $response = call_user_func_array(array($object, $function), $params);
-        return $response;
+        return method($action, $params);
     }
 
     private function parseSignal($signal)
     {
         if (is_callable($signal)) {
             return $signal();
-        }
-        if (empty($signal)) {
-            return $this->fetchUrlSignal();
         }
         return $signal;
     }

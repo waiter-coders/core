@@ -3,46 +3,43 @@ namespace Waiterphp\Core;
 
 class Env
 {
-    public static function instance($envName = 'default')
+    public static function instance()
     {
-        static $instances = array();
-        if (!isset($instances[$envName])) {
-            $instances[$envName] = new self();
+        static $instance = null;
+        if (empty($instance)) {
+            $instance = new self();
         }
-        return $instances[$envName];
+        return $instance;
     }
 
-    private $config = array();
-    private $action = array();
+    private $values = array();
+    private $events = array();
 
-    public function set($env)
+    public function set($key, $value)
     {
-        $this->config = $env;
+        $this->values[$key] = $value;
     }
 
     public function get($docIndex)
     {
-        return findDataByDot($docIndex, $this->config);
+        return isset($this->values[$docIndex]) ? $this->values[$docIndex] : null;
     }
 
     public function bind($tab, $action)
     {
-        $this->action[$tab][] = $action;
+        $this->events[$tab][] = $action;
     }
 
     public function trigger($tab, $params = array())
     {
-        if (!isset($this->action[$tab])) {
+        if (!isset($this->events[$tab])) {
             return false;
         }
-        foreach ($this->action[$tab] as $action) {
-            $result = call_user_func_array($action, $params);
-            if (!$result) {
+        foreach ($this->events[$tab] as $action) {
+            if (Factory::action($action, $params) == false) {
                 break;
             }
         }
         return true;
     }
-
-
 }

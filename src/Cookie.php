@@ -1,36 +1,26 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Administrator
- * Date: 2018/5/28
- * Time: 14:36
- */
 
 namespace Waiterphp\Core;
 
-
 class Cookie
 {
-    public static function get($key)
+    public static function set($name, $value, $expire = 300, 
+                                $path = '', $domain = '', $secure = false, $httpOnly = false)
     {
-        return isset($_COOKIE[$key]) ? $_COOKIE[$key] : '';
+        $value = $secure ? self::encrypt($value) : $value;
+        return setcookie($name, $value, $expire, $path, $domain);
     }
 
-    public static function set($key, $value, $expire = 300)
+    public static function get($name, $isDecrypt = true)
     {
-        setcookie($key, $value, $expire);
+        $value = isset($_COOKIE[$name]) ? $_COOKIE[$name] : '';
+        $value = $isDecrypt ? self::decrypt($value) : $value;
+        return $value;
     }
 
-    public static function safeSet($key, $value, $expire = 300)
+    public static function delete($name)
     {
-        $value = self::encrypt($value);
-        self::set($key, $value, $expire);
-    }
-
-    public static function safeGet($key, $value, $expire = 300)
-    {
-        $value = self::get($key);
-        return self::decrypt($value);
+        self::set($name, '', time() - 3600);
     }
 
     private static function encrypt($value)

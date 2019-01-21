@@ -1,13 +1,7 @@
 <?php
 namespace Waiterphp\Core;
-
 class File
 {
-    static public function readDir($dir)
-    {
-
-    }
-
     static public function mv($sourceFile, $targetFile)
     {
         $sourceFile = self::formatPath($sourceFile);
@@ -73,13 +67,6 @@ class File
         assertOrException($status == false, 'delete fiel error:'.$file);
     }
 
-    private static function formatPath($path)
-    {
-        $path = realpath($path);
-        $path = str_replace('/', DIRECTORY_SEPARATOR, $path);
-        return str_replace('\\', DIRECTORY_SEPARATOR, $path);
-    }
-
     public static function relativePath($sourcePath, $targetPath)
     {
         $sourcePath = self::formatPath($sourcePath);
@@ -94,8 +81,15 @@ class File
         return implode('/', $path_array);
     }
 
-    public static function getData($file)
+    public static function getContents($file)
     {
         return file_get_contents($file);
+    }
+
+    private static function formatPath($path)
+    {
+        $path = realpath($path);
+        $path = str_replace('/', DIRECTORY_SEPARATOR, $path);
+        return str_replace('\\', DIRECTORY_SEPARATOR, $path);
     }
 }

@@ -9,7 +9,7 @@
 namespace Waiterphp\Core;
 
 
-class Cli
+class Shell
 {
     public static function getArg($key)
     {

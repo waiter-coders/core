@@ -1,13 +1,23 @@
 <?php
 /*
  * 基础功能函数
+ * 
+ * 采用下划线命名，和php基础函数统一
  */
+
+ // 断言正确，否则抛出异常
+function assert_or_exception($boolean, $errorMessage, $code = 500)
+{
+    if (!$boolean) {
+        throw new \Exception($errorMessage, $code);
+    }
+}
 
 // 不同于array_merge_recursive，array_merge_recursive_cover相同键名时，后者覆盖前者
 function array_deep_cover($baseArray, $mergeArray)
 {
-    assertOrException(is_array($baseArray), 'baseArray input is not array:' . json_encode($baseArray));
-    assertOrException(is_array($mergeArray), 'mergeArray input is not array:' . json_encode($mergeArray));
+    assert_or_exception(is_array($baseArray), 'baseArray input is not array:' . json_encode($baseArray));
+    assert_or_exception(is_array($mergeArray), 'mergeArray input is not array:' . json_encode($mergeArray));
     foreach ($mergeArray as $key=>$value) {
         if (is_array($value)) {
             !isset($baseArray[$key]) && $baseArray[$key] = array();
@@ -19,97 +29,71 @@ function array_deep_cover($baseArray, $mergeArray)
     return $baseArray;
 }
 
-// 断言正确，否则抛出异常
-function assertOrException($boolean, $errorMessage, $code = 500)
+// 从文件在加载配置信息的快捷函数
+function load_configs($fileNames, $basePaths)
 {
-    if (!$boolean) {
-        throw new \Exception($errorMessage, $code);
+    $config = array();
+    $fileNames = is_string($fileNames) ? array($fileNames) : $fileNames;
+    $basePaths = is_string($basePaths) ? array($basePaths) : $basePaths;
+    foreach ($basePaths as $basePath) {
+        foreach ($fileNames as $fileName) {
+            $filePath = $basePath . DIRECTORY_SEPARATOR . $fileName;
+            if (is_file($filePath)) {
+                $targetConfig = require $filePath;
+                assert_or_exception(is_array($targetConfig), 'config not return array:' . $filePath);
+                $config = array_deep_cover($config, $targetConfig);
+            }
+        }
     }
+    return $config;
 }
 
-/*
- * 点的相关功能
- */
-// 检查是否是dot结构
-function isDot($dot)
-{
-    return (is_string($dot) && strpos($dot, '.') > 0);
-}
-
-// 把 controller.home.show 类型的转化为ControllerHome类和方法 show
-function dotToMethod($dot)
-{
-    $class = explode('.', $dot);
-    $method = array_pop($class);
-    return array(dotToClass($class), $method);
-}
-
-// 把 controller.home类型的转化为ControllerHome类
-function dotToClass($dot)
-{
-    $class = is_array($dot) ? $dot : explode('.', $dot);
-    foreach ($class as $key=>$value) {
-        $class[$key] = ucfirst($value);
-    }
-    return '\\' . implode('\\', $class);
-}
-
-// 根据dot键名获取数组数据
-function findDataByDot($dot, $data)
-{
-    // 一层一层搜索键值数组
-    $dot = explode('.', $dot);
-    foreach ($dot as $key) {
-        assertOrException(isset($data[$key]), 'has no item:' . $key);
-        $data = $data[$key];
-    }
-    return $data;
-}
-
-
-/*
- * 应用功能
- */
-
-// 表访问
-function run($action, $params)
-{
-    list($class, $method) = dotToMethod($action);
-    $object = new $class($params);
-    return call_user_func_array(array($object, $method), array());
-}
-
+// 获取db类表对象的快捷函数
 function table($table, $name = 'default') // 数据库访问
 {
     return \Waiterphp\Core\DB::table($table, $name);
 }
 
-function scenes($environment)
+// 工厂生产类的快捷函数
+function factory($class, $params = array())
 {
-    return \Waiterphp\Core\Scenes::instance($environment);
+    return \Waiterphp\Core\Factory::factory($class, $params);
 }
 
-function loadConfig($files, $basePaths)
+// 工厂生产单例的快捷函数
+function instance($class, $params = array())
 {
-    return \Waiterphp\Core\Config::loadFiles($files, $basePaths);
+    return \Waiterphp\Core\Factory::instance($class, $params);
 }
 
-function putToQueue()
+// 调用类方法的快捷函数
+function method($action, $params, $isInstance = true)
 {
-
+    list($class, $method) = \Waiterphp\Core\Dot::dotToMethod($action);
+    $object = $isInstance ? instance($class) : factory($class);
+    return call_user_func_array(array($object, $method), $params);
 }
 
-function fetchFromQueue()
+// 设置当前环境信息的快捷函数
+function set_env($key, $value)
 {
-
+    \Waiterphp\Core\Env::instance()->set($key, $value);
 }
 
-function findArrayItem($array, $key, $value)
+// 获取当前环境信息的快捷函数
+function get_env($key)
 {
-    foreach ($array as $item) {
-        if (isset($item[$key]) && $item[$key] == $value) {
-            return $item;
-        }
-    }
-    return null;
+    return \Waiterphp\Core\Env::instance()->get($key);
+}
+
+// 绑定事件到当前环境的快捷函数
+function bind_to_env($tab, $action)
+{
+    \Waiterphp\Core\Env::instance()->bind($tab, $action);
+}
+
+// 触发事件的快捷函数
+function env_trigger($tab, $params = array())
+{
+    \Waiterphp\Core\Env::instance()->trigger($tab, $params);
 }

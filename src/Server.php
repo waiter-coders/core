@@ -1,8 +1,21 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: Administrator
+ * Date: 2018/11/19
+ * Time: 16:03
+ */
+
 namespace Waiterphp\Core;
 
-class Http
+
+class Server
 {
+    public static function scriptName()
+    {
+
+    }
+
     public static function protocol()
     {
         return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
@@ -71,5 +84,4 @@ class Http
         $ajaxTab = strtolower($_SERVER['HTTP_X_REQUESTED_WITH']);
         return ($ajaxTab == 'xmlhttprequest') ? true : false;
     }
-
 }

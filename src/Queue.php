@@ -18,4 +18,4 @@ abstract class Queue
 
     abstract public function consumer();
     abstract public function producer();
-}
+} 
