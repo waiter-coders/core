@@ -23,7 +23,7 @@ set_env('cache.redis', []);
 cache('redis')->hmget('some_key');
 ```
 
-#### 访问获取
+#### http请求
 
 ```php
 request()->hostname();
@@ -35,4 +35,6 @@ request()->hostname();
 curl($url, $params, $httpType, $header);
 ```
 
+#### 文件操作
 
+#### 过滤器的使用
