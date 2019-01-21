@@ -9,6 +9,11 @@ set_env('app_name', 'waiterphp_core');
 print get_env('app_name');
 ```
 
+#### 装载配置
+```php
+$configs = load_configs($filePath);
+```
+
 #### 数据库访问
 
 ```
@@ -36,5 +41,22 @@ curl($url, $params, $httpType, $header);
 ```
 
 #### 文件操作
+
+
+#### 事件绑定和触发
+```php
+bind_to_env($tab, $action);
+env_trigger($tab, $params = array());
+```
+
+#### dao的使用
+```
+use Waiterphp\Core\Dao\DaoTrait;
+
+class User
+{
+	use DaoTrait;
+}
+```
 
 #### 过滤器的使用
