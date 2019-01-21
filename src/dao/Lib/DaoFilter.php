@@ -1,5 +1,5 @@
 <?php
-namespace Waiterphp\Dao\Lib;
+namespace Waiterphp\Core\Dao\Lib;
 
 
 class DaoFilter

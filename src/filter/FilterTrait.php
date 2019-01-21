@@ -1,5 +1,5 @@
 <?php
-namespace Waiterphp\Core;
+namespace Waiterphp\Core\Filter;
 trait FilterTrait
 {
     private $data = array();

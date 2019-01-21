@@ -6,7 +6,7 @@
  * Time: 14:35
  */
 
-namespace Waiterphp\Core;
+namespace Waiterphp\Core\Lib;
 
 
 class Shell

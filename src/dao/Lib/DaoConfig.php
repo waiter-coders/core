@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Waiterphp\Dao\Lib;
+namespace Waiterphp\Core\Dao\Lib;
 /*
  * 虚拟表数据构造类
  */

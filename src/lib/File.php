@@ -1,5 +1,5 @@
 <?php
-namespace Waiterphp\Core;
+namespace Waiterphp\Core\Lib;
 class File
 {
     static public function mv($sourceFile, $targetFile)

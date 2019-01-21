@@ -1,8 +1,8 @@
 <?php
 
-namespace Waiterphp\Dao\Lib;
+namespace Waiterphp\Core\Dao\Lib;
 
-use Waiterphp\Core\DB as DB;
+use Waiterphp\Core\Lib\DB as DB;
 
 class DaoTransform
 {

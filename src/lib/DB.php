@@ -1,5 +1,5 @@
 <?php
-namespace Waiterphp\Core;
+namespace Waiterphp\Core\Lib;
 /*
  * 查询构建器
  *

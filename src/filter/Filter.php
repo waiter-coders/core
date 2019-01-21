@@ -6,9 +6,9 @@
  * Time: 16:40
  */
 
-namespace Waiterphp\Core;
+namespace Waiterphp\Core\Filter;
 
-use Waiterphp\Core\FilterTrait as FilterTrait;
+use Waiterphp\Core\Filter\FilterTrait as FilterTrait;
 
 class Filter
 {

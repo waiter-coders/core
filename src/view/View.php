@@ -1,5 +1,5 @@
 <?php
-namespace Waiterphp\Core;
+namespace Waiterphp\Core\View;
 
 /*
  * *【网页】***************************

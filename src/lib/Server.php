@@ -6,7 +6,7 @@
  * Time: 16:03
  */
 
-namespace Waiterphp\Core;
+namespace Waiterphp\Core\Lib;
 
 
 class Server

@@ -1,9 +1,9 @@
 <?php
-namespace Waiterphp\Dao;
+namespace Waiterphp\Core\Dao;
 
-use Waiterphp\Dao\Lib\DaoConfig as DaoConfig;
-use Waiterphp\Dao\Lib\DaoFilter as DaoFilter;
-use Waiterphp\Dao\Lib\DaoTransform as DaoTransform;
+use Waiterphp\Core\Dao\Lib\DaoConfig as DaoConfig;
+use Waiterphp\Core\Dao\Lib\DaoFilter as DaoFilter;
+use Waiterphp\Core\Dao\Lib\DaoTransform as DaoTransform;
 
 trait DaoTrait
 {

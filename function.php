@@ -51,25 +51,25 @@ function load_configs($fileNames, $basePaths)
 // 获取db类表对象的快捷函数
 function table($table, $name = 'default') // 数据库访问
 {
-    return \Waiterphp\Core\DB::table($table, $name);
+    return \Waiterphp\Core\Lib\DB::table($table, $name);
 }
 
 // 工厂生产类的快捷函数
 function factory($class, $params = array())
 {
-    return \Waiterphp\Core\Factory::factory($class, $params);
+    return \Waiterphp\Core\Lib\Factory::factory($class, $params);
 }
 
 // 工厂生产单例的快捷函数
 function instance($class, $params = array())
 {
-    return \Waiterphp\Core\Factory::instance($class, $params);
+    return \Waiterphp\Core\Lib\Factory::instance($class, $params);
 }
 
 // 调用类方法的快捷函数
 function method($action, $params, $isInstance = true)
 {
-    list($class, $method) = \Waiterphp\Core\Dot::dotToMethod($action);
+    list($class, $method) = \Waiterphp\Core\Lib\Dot::dotToMethod($action);
     $object = $isInstance ? instance($class) : factory($class);
     return call_user_func_array(array($object, $method), $params);
 }
@@ -77,24 +77,24 @@ function method($action, $params, $isInstance = true)
 // 设置当前环境信息的快捷函数
 function set_env($key, $value)
 {
-    \Waiterphp\Core\Env::instance()->set($key, $value);
+    \Waiterphp\Core\Lib\Env::instance()->set($key, $value);
 }
 
 // 获取当前环境信息的快捷函数
 function get_env($key)
 {
-    return \Waiterphp\Core\Env::instance()->get($key);
+    return \Waiterphp\Core\Lib\Env::instance()->get($key);
 }
 
 // 绑定事件到当前环境的快捷函数
 function bind_to_env($tab, $action)
 {
-    \Waiterphp\Core\Env::instance()->bind($tab, $action);
+    \Waiterphp\Core\Lib\Env::instance()->bind($tab, $action);
 }
 
 // 触发事件的快捷函数
 function env_trigger($tab, $params = array())
 {
-    \Waiterphp\Core\Env::instance()->trigger($tab, $params);
+    \Waiterphp\Core\Lib\Env::instance()->trigger($tab, $params);
 }
  
