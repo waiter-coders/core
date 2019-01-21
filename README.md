@@ -2,14 +2,14 @@
 
 提供php的一些基础操作类库。
 
-####　设置环境
+#### 设置环境
 
 ```php
 set_env('app_name', 'waiterphp_core');
 print get_env('app_name');
 ```
 
-####　数据库访问
+#### 数据库访问
 
 ```
 set_env('database.default', []);
