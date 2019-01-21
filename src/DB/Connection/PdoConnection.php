@@ -1,6 +1,7 @@
 <?php
+namespace Waiterphp\Core\DB\Connection;
 
-class PdoDatabaseInstance extends DatabaseInstance
+class PdoDatabaseInstance extends Connection
 {
     private $config = array();
     private $connectionPool = array();

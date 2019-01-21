@@ -1,5 +1,5 @@
 <?php
-namespace Waiterphp\Core\Lib;
+namespace Waiterphp\Core\Queue;
 /**
  * 队列
  */

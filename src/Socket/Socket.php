@@ -1,5 +1,5 @@
 <?php
-namespace Waiterphp\Core\Lib;
+namespace Waiterphp\Core\Socket;
 /**
  * 队列
  */

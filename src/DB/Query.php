@@ -1,5 +1,8 @@
 <?php
-namespace Waiterphp\Core\Database\Query;
+namespace Waiterphp\Core\DB;
+
+use Waiterphp\Core\Db\Parse\Where as DB_Where;
+use Waiterphp\Core\Db\Parse\Join as DB_Join;
 
 class Query
 {
@@ -76,20 +79,20 @@ class Query
     {
         $this->limit = '0,1';
         list($sql, $params) = $this->generateQuery();
-        return DB::connection($this->connection)->fetchRow($sql, $params);
+        return Database::connection($this->connection)->fetchRow($sql, $params);
     }
 
     public function fetchAll()
     {
         list($sql, $params) = $this->generateQuery();
-        return DB::connection($this->connection)->fetchAll($sql, $params);
+        return Database::connection($this->connection)->fetchAll($sql, $params);
     }
 
     public function fetchColumn()
     {
         $this->limit = '0,1';
         list($sql, $params) = $this->generateQuery();
-        return DB::connection($this->connection)->fetchColumn($sql, $params);
+        return Database::connection($this->connection)->fetchColumn($sql, $params);
     }
 
     public function fetchColumns($column)
@@ -190,8 +193,8 @@ class Query
         $columns = implode(',', array_keys($data));
         $values = implode(',', array_fill(0, count($data), '?'));
         $sql = sprintf('insert into %s (%s) values (%s)', $this->mainTable, $columns, $values);
-        DB::connection($this->connection)->execute($sql, array_values($data));
-        return DB::connection($this->connection)->lastInsertId();
+        Database::connection($this->connection)->execute($sql, array_values($data));
+        return Database::connection($this->connection)->lastInsertId();
     }
 
     public function update($data)
@@ -201,8 +204,8 @@ class Query
         list($updateSql, $updateParams) = $this->parseUpdateData($data);
         $sql = 'update ' . $this->mainTable . ' set ' . $updateSql . ' where ' . $where;
         $params = array_merge($updateParams, $queryParams);
-        DB::connection($this->connection)->execute($sql, $params);
-        return DB::connection($this->connection)->lastAffectRows();
+        Database::connection($this->connection)->execute($sql, $params);
+        return Database::connection($this->connection)->lastAffectRows();
     }
 
     public function increment($column, $num = 1)
@@ -222,8 +225,8 @@ class Query
         assertOrException(!empty($this->where), 'please set where when delete');
         list($where, $queryParams) = DB_Where::parse($this->where);
         $sql = sprintf('delete from %s where %s;', $this->mainTable, $where);
-        DB::connection($this->connection)->execute($sql, $queryParams);
-        return DB::connection($this->connection)->lastAffectRows();
+        Database::connection($this->connection)->execute($sql, $queryParams);
+        return Database::connection($this->connection)->lastAffectRows();
     }
 
 

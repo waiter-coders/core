@@ -1,10 +1,10 @@
 <?php
-
+namespace Waiterphp\Core\DB\Parse;
 /*
  * 条件解析
  * 用于把条件数组转化为sql语句
  */
-class DB_Where
+class Where
 {
     public static function parse(array $where)
     {

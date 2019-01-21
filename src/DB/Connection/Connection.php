@@ -1,6 +1,6 @@
 <?php
-
-abstract class DatabaseInstance
+namespace Waiterphp\Core\DB\Connection;
+abstract class Connection
 {
     abstract public function __construct($connectConfig);
     abstract public function execute($sql, $params = array());

@@ -1,13 +1,16 @@
 <?php
+namespace Waiterphp\Core\DB\Parse;
+use Waiterphp\Core\Database\Query as Query;
+
 /*
  * Join链接对象，用于提供Join方法
  */
-class DB_Join
+class Join
 {
     private $query;
     private $joinTable;
     private $joinType;
-    public function __construct(DB_Query $query, $joinTable, $joinType)
+    public function __construct(Query $query, $joinTable, $joinType)
     {
         $this->query = $query;
         $this->joinTable = $joinTable;

@@ -1,5 +1,7 @@
 <?php
-namespace Waiterphp\Core\Base;
+namespace Waiterphp\Core\Env;
+
+use Waiterphp\Core\Dot\Dot as Dot;
 
 class Factory
 {

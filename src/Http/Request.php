@@ -6,7 +6,7 @@
  * Time: 16:03
  */
 
-namespace Waiterphp\Core\Lib;
+namespace Waiterphp\Core\Http;
 
 
 class Request

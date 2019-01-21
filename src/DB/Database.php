@@ -1,5 +1,7 @@
 <?php
-namespace Waiterphp\Core\Database;
+namespace Waiterphp\Core\DB;
+
+use Waiterphp\Core\DB\Connection\PdoDatabaseInstance as PdoDatabaseInstance;
 /*
  * 查询构建器
  *
@@ -60,7 +62,7 @@ class Database
     {
         $name = empty($name) ? self::$defaultName : $name;
         assertOrException(isset(self::$config[$name]), 'not has connection config or default config:' . $name);
-        return new DB_Query($table, $name);
+        return new Query($table, $name);
     }
 
     // 绑定事务区域
