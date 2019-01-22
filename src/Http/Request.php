@@ -59,9 +59,9 @@ class Request
         } 
         // 查找所需值
         if ($key === null) {
-            return $_POST;
+            return $post;
         } else {
-            return isset($_POST[$key]) ? $_POST[$key] : '';
+            return isset($post[$key]) ? $post[$key] : '';
         }
     }
 
