@@ -2,6 +2,13 @@
 
 该项目提供了php的一些基础操作封装。
 
+#### 装载配置
+可通过以下方式装载和获取配置文件
+```php
+$configs = load_configs($fileNames, $basePaths);
+```
+函数可以从basePaths设置的多个路径里面，加载fileNames里面设置的多个文件中的内容，覆盖顺序为后者覆盖前者。
+
 #### 设置当前环境
 通过以下函数设置环境变量和获取环境变量：
 ```php
@@ -21,17 +28,6 @@ set_env('database', array(
 ```
 注意：
 > 环境变量的设置，后者会覆盖前者
-
-
-#### 装载配置
-可通过以下方式装载和获取配置文件
-```php
-$configs = load_configs($filePath, true);
-```
-load_configs第二个参数默认为true,它代表装载的配置文件将直接添加的当前环境
-
-注意:
-
 > 环境变量有一些默认键名，如database为数据库设置，cache为缓存设置,如cache.redis,cache.file. 更多设置见：
 
 #### 异常检测
@@ -134,3 +130,9 @@ echo render('user/login.html', array('username'=>'测试'), 'smarty');
 ```
 > 第三个参数可以选择你采用的渲染引擎，默认为smarty。
 > 目前可支持的有：smarty、twig
+
+可以设置自定义的第三个参数，要求类本身实现render方法。如下：
+```php
+set_env('view', array());
+echo render('user/login.html', array('username'=>'测试'), 'tools.myView');
+```
