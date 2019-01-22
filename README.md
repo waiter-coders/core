@@ -2,6 +2,13 @@
 
 该项目提供了php的一些基础操作封装。
 
+#### 装载配置
+可通过以下方式装载和获取配置文件
+```php
+$configs = load_configs($fileNames, $basePaths);
+```
+函数可以从basePaths设置的多个路径里面，加载fileNames里面设置的多个文件中的内容，覆盖顺序为后者覆盖前者。
+
 #### 设置当前环境
 通过以下函数设置环境变量和获取环境变量：
 ```php
@@ -21,17 +28,6 @@ set_env('database', array(
 ```
 注意：
 > 环境变量的设置，后者会覆盖前者
-
-
-#### 装载配置
-可通过以下方式装载和获取配置文件
-```php
-$configs = load_configs($fileNames, $basePaths);
-```
-函数可以从basePaths设置的多个路径里面，加载fileNames里面设置的多个文件中的内容，覆盖顺序为后者覆盖前者。
-
-注意:
-
 > 环境变量有一些默认键名，如database为数据库设置，cache为缓存设置,如cache.redis,cache.file. 更多设置见：
 
 #### 异常检测
