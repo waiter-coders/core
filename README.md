@@ -72,6 +72,10 @@ cache('redis')->hmget('some_key');
 
 ```php
 print request()->hostname();
+print request()->query();
+print request()->query('userId');
+print request()->post();
+print request()->post('userId');
 ```
 
 #### curl请求
@@ -82,7 +86,8 @@ curl($url, $params, $httpType, $header);
 
 #### 文件操作
 ```php
-file().getFiles('/home/tianzheng')
+get_files('/home/user');
+write('/home/user/test.txt', $content, 'a+');
 ```
 
 #### 事件绑定和触发
@@ -134,5 +139,5 @@ echo render('user/login.html', array('username'=>'测试'), 'smarty');
 可以设置自定义的第三个参数，要求类本身实现render方法。如下：
 ```php
 set_env('view', array());
-echo render('user/login.html', array('username'=>'测试'), 'tools.myView');
+render('user/login.html', array('username'=>'测试'), 'tools.myView');
 ```
