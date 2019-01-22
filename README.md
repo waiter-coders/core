@@ -106,10 +106,31 @@ class User
 ```
 
 #### 过滤器的使用
+可以利用trait快速构建一个过滤器
+```php
+use Waiterphp\Core\Filter\FilterTrait;
 
-#### 监控工具
+class HttpRequest
+{
+	use Filter;
+}
+```
+当然，你也可以直接使用Filter直接过滤数据
+```php
+filter($data)->getInt('userId', '');
+```
+注意：
+>  第二个参数为默认值。如果没有设置，当获取不到数据时，抛出异常！
 
 #### 构建工具
 ```php
 build();
 ```
+
+#### 页面渲染工具
+```php
+set_env('view', array());
+render('user/login.html', array('username'=>'测试'), 'smarty');
+```
+> 第三个参数可以选择你采用的渲染引擎，默认为smarty。
+> 目前可支持的有：smarty、twig
