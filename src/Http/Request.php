@@ -1,21 +1,10 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Administrator
- * Date: 2018/11/19
- * Time: 16:03
- */
 
 namespace Waiterphp\Core\Http;
 
 
 class Request
 {
-    public static function scriptName()
-    {
-
-    }
-
     public static function protocol()
     {
         return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
@@ -24,6 +13,66 @@ class Request
     public static function host()
     {
         return rtrim(self::protocol().$_SERVER['HTTP_HOST'], '\\');
+    }
+
+    public static function scriptName()
+    {
+
+    }
+
+    public static function path($pos = 0)
+    {
+        $path = isset($_SERVER['PATH_INFO']) ? ltrim($_SERVER['PATH_INFO'], '/') : '';
+        if ($pos == 0) {
+            return $path;
+        }
+        $path = explode('/', $path);
+        return $path[$pos];
+    }
+
+    public static function fullUrl()
+    {
+        return rtrim(self::host(). '/'. $_SERVER['SCRIPT_NAME'], '\\');
+    }
+
+    public static function refer()
+    {
+        return isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : null;
+    }
+
+    public static function query($key = null)
+    {
+        if ($key === null) {
+            return $_GET;
+        } else {
+            return isset($_GET[$key]) ? $_GET[$key] : '';
+        }
+    }
+
+    public static function post($key = null)
+    {
+        // 获取post数据
+        $post = $_POST;
+        if (empty($post)) {
+            $post = file_get_contents('php://input');
+            $post = !empty($post) ? json_decode($post, true) : array(); 
+        } 
+        // 查找所需值
+        if ($key === null) {
+            return $_POST;
+        } else {
+            return isset($_POST[$key]) ? $_POST[$key] : '';
+        }
+    }
+
+    public static function redirect($jumpUrl)
+    {
+        // 没有包含域名的自动包含域名
+        if (strncmp ($jumpUrl, 'http', 4)) {
+            $jumpUrl = self::url() . '/' . ltrim($jumpUrl, '/');
+        }
+        ob_end_clean();
+        header("Location:" . $jumpUrl);
     }
 
     public static function ip()
@@ -39,41 +88,6 @@ class Request
             $ip = $_SERVER['REMOTE_ADDR'];
         }
         return preg_match ( '/[\d\.]{7,15}/', $ip, $matches ) ? $matches [0] : '';
-    }
-
-    public static function path($pos = 0)
-    {
-        $path = isset($_SERVER['PATH_INFO']) ? ltrim($_SERVER['PATH_INFO'], '/') : '';
-        if ($pos == 0) {
-            return $path;
-        }
-        $path = explode('/', $path);
-        return $path[$pos];
-    }
-
-    public static function query()
-    {
-
-    }
-
-    public static function url()
-    {
-        return rtrim(self::host(). '/'. $_SERVER['SCRIPT_NAME'], '\\');
-    }
-
-    public static function refer()
-    {
-        return isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : null;
-    }
-
-    public static function redirect($jumpUrl)
-    {
-        // 没有包含域名的自动包含域名
-        if (strncmp ($jumpUrl, 'http', 4)) {
-            $jumpUrl = self::url() . '/' . ltrim($jumpUrl, '/');
-        }
-        ob_end_clean();
-        header("Location:" . $jumpUrl);
     }
 
     public static function isAjax()

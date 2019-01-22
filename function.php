@@ -69,9 +69,18 @@ function action($action, $params, $isInstance = true)
 }
 
 // 设置当前环境信息的快捷函数
-function set_env($key, $value)
+function set_env($key, $value = null)
 {
-    \Waiterphp\Core\Env\Context::instance()->set($key, $value);
+    // 兼容直接赋值数组
+    if (is_array($key)) {
+        foreach ($key as $subKey=>$subValue) {
+            \Waiterphp\Core\Env\Context::instance()->set($subKey, $subValue);
+        }
+    }
+    // kv赋值
+    else {
+        \Waiterphp\Core\Env\Context::instance()->set($key, $value);
+    }    
 }
 
 // 获取当前环境信息的快捷函数
