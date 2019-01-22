@@ -26,9 +26,9 @@ set_env('database', array(
 #### 装载配置
 可通过以下方式装载和获取配置文件
 ```php
-$configs = load_configs($filePath, true);
+$configs = load_configs($fileNames, $basePaths);
 ```
-load_configs第二个参数默认为true,它代表装载的配置文件将直接添加的当前环境
+函数可以从basePaths设置的多个路径里面，加载fileNames里面设置的多个文件中的内容，覆盖顺序为后者覆盖前者。
 
 注意:
 
