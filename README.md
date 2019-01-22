@@ -130,3 +130,9 @@ echo render('user/login.html', array('username'=>'测试'), 'smarty');
 ```
 > 第三个参数可以选择你采用的渲染引擎，默认为smarty。
 > 目前可支持的有：smarty、twig
+
+可以设置自定义的第三个参数，要求类本身实现render方法。如下：
+```php
+set_env('view', array());
+echo render('user/login.html', array('username'=>'测试'), 'tools.myView');
+```
