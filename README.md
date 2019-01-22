@@ -130,7 +130,7 @@ build();
 #### 页面渲染工具
 ```php
 set_env('view', array());
-render('user/login.html', array('username'=>'测试'), 'smarty');
+echo render('user/login.html', array('username'=>'测试'), 'smarty');
 ```
 > 第三个参数可以选择你采用的渲染引擎，默认为smarty。
 > 目前可支持的有：smarty、twig
