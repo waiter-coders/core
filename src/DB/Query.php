@@ -65,7 +65,7 @@ class Query
     {
         $pattern = '/' . $column . ' = (\d+)/i';
         $hasColumn = preg_match($pattern, $this->where, $matches);
-        assertOrException($hasColumn, 'can not find part column ' . $column);
+        assert_exception($hasColumn, 'can not find part column ' . $column);
         $partId = $matches[1];
         $suffix = $method($partId);
         $this->mainTable .= '_' . $suffix;
@@ -199,7 +199,7 @@ class Query
 
     public function update($data)
     {
-        assertOrException(!empty($this->where), 'please set where when update');
+        assert_exception(!empty($this->where), 'please set where when update');
         list($where, $queryParams) = DB_Where::parse($this->where);
         list($updateSql, $updateParams) = $this->parseUpdateData($data);
         $sql = 'update ' . $this->mainTable . ' set ' . $updateSql . ' where ' . $where;
@@ -222,7 +222,7 @@ class Query
 
     public function delete()
     {
-        assertOrException(!empty($this->where), 'please set where when delete');
+        assert_exception(!empty($this->where), 'please set where when delete');
         list($where, $queryParams) = DB_Where::parse($this->where);
         $sql = sprintf('delete from %s where %s;', $this->mainTable, $where);
         Database::connection($this->connection)->execute($sql, $queryParams);

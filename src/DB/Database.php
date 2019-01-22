@@ -51,7 +51,7 @@ class Database
     public static function connection($name = null)
     {
         $name = empty($name) ? self::$defaultName : $name;
-        assertOrException(isset(self::$config[$name]), 'not has connection config:' . $name);
+        assert_exception(isset(self::$config[$name]), 'not has connection config:' . $name);
         if (!isset(self::$connection[$name])) {
             self::$connection[$name] = new PdoDatabaseInstance(self::$config[$name]);
         }
@@ -61,7 +61,7 @@ class Database
     public static function table($table, $name = null)
     {
         $name = empty($name) ? self::$defaultName : $name;
-        assertOrException(isset(self::$config[$name]), 'not has connection config or default config:' . $name);
+        assert_exception(isset(self::$config[$name]), 'not has connection config or default config:' . $name);
         return new Query($table, $name);
     }
 
@@ -90,7 +90,7 @@ class Database
         }
 
         // 单数据库配置
-        assertOrException(isset($config['host']) && isset($config['database']), 'no host or database set');
+        assert_exception(isset($config['host']) && isset($config['database']), 'no host or database set');
         self::$config[$name] = self::formatConfig($config);
         if (isset($config['isDefault']) && $config['isDefault'] == true) {
             self::$defaultName = $name;

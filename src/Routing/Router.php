@@ -29,7 +29,7 @@ class Router
     private function searchTarget($routes, $signal)
     {
         foreach ($routes as $route) {
-            assertOrException(isset($route[0]) || isset($route['url']), 'route not set');
+            assert_exception(isset($route[0]) || isset($route['url']), 'route not set');
             $pattern = isset($route[0]) ? $route[0] : $route['url'];
             if (preg_match($this->formatPattern($pattern), $signal, $matches)) {
                 return $this->generateCmd($route[1], $matches);

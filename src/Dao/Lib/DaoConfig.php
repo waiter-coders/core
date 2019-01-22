@@ -81,8 +81,8 @@ class DaoConfig
         $field = array_shift($args);
         list($trueField, $field) = $this->formatField($field);
         $type = array_shift($args);        
-        assertOrException(!isset($this->fields[$field]), 'field all ready set:'.$field);
-        assertOrException(isset(self::$baseType[$type]), 'field type not exist:' . $type);
+        assert_exception(!isset($this->fields[$field]), 'field all ready set:'.$field);
+        assert_exception(isset(self::$baseType[$type]), 'field type not exist:' . $type);
         $this->fields[$field] = array('field'=>$field, 'type'=>$type);
         $this->fields[$field] = array_merge($this->fields[$field], $this->analyzeFieldArgs($type, $args));
         if (!empty($trueField)) {
@@ -132,7 +132,7 @@ class DaoConfig
 
     public function setFilter($field, $input, $inputParams = array(), callable $output = null, $outputParams = array())
     {
-        assertOrException((is_string($input) || (is_callable($input) && is_callable($output))), 'filter set error');
+        assert_exception((is_string($input) || (is_callable($input) && is_callable($output))), 'filter set error');
         $this->fieldsFilters[$field][] = array('input'=>$input, 'inputParams'=>$inputParams, 'output'=>$output, 'outputParams'=>$outputParams);
     }
 

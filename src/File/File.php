@@ -43,7 +43,7 @@ class File
     {
         $files = array();
         $handle = opendir($dir);
-        assertOrException($handle == true, 'can not open dir:' . $dir);
+        assert_exception($handle == true, 'can not open dir:' . $dir);
         while (($file = readdir($handle)) !== false)//循环读取目录中的文件名并赋值给$file
         {
             if ($file == "." || $file == "..") {//排除当前路径和前一路径
@@ -64,7 +64,7 @@ class File
     static function rm($file)
     {
         $status = unlink($file);
-        assertOrException($status == false, 'delete fiel error:'.$file);
+        assert_exception($status == false, 'delete fiel error:'.$file);
     }
 
     public static function relativePath($sourcePath, $targetPath)

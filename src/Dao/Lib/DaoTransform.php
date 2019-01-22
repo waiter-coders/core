@@ -28,7 +28,7 @@ class DaoTransform
             // join查询跳过主表
             if ($selectTable == $this->daoConfig->table) { continue;}
             // 检查是否存在join table的配置
-            assertOrException(isset($this->daoConfig->joinTables[$selectTable]), 'no join table config:'.$selectTable);
+            assert_exception(isset($this->daoConfig->joinTables[$selectTable]), 'no join table config:'.$selectTable);
             $join = $this->daoConfig->joinTables[$selectTable];
             $tableName = $join['table'] . ' as ' . $selectTable;
             $on = sprintf('%s.%s = %s.%s', $this->daoConfig->table, $join['mainField'], $selectTable, $join['joinField']);

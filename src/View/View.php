@@ -68,7 +68,7 @@ class View
     {
         static $view = null;
         if (empty($view)) {
-            assertOrException(!empty(self::$config['template']) && !empty(self::$config['compile']), 'template path not set');
+            assert_exception(!empty(self::$config['template']) && !empty(self::$config['compile']), 'template path not set');
             $engine = isset(self::$config['type']) ? ucfirst(self::$config['type']) : 'Smarty';
             $class = '\\Vendor\\View\\' . $engine . 'Render';
             $view = new $class(self::$config);

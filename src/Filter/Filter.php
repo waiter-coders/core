@@ -14,7 +14,7 @@ class Filter
 {
     use FilterTrait;
 
-    public static function from($data)
+    public static function instance($data)
     {
         return new self($data);
     }

@@ -3,22 +3,12 @@ namespace Waiterphp\Core\Http;
 
 class Curl
 {
-    public static function post($url, $post, $header = array())
+    public static function sendRequest($url, $params = array(), $type = 'get', $header = array(), $options = array())
     {
-        return self::sendRequest($url, $post, 'post', $header);
-    }
-
-    public static function get($url, $query = array(), $header = array())
-    {
-        if (!empty($query)) {
-            $url .= strpos($url, '?') ? '&' : '?';
-            $url .= http_build_query($query);
+        if ($type == 'get' && !empty($params)) {
+            $url = self::urlMergeQuery($url, $params);
         }
-        return self::sendRequest($url, array(), 'get', $header);
-    }
 
-    public static function sendRequest($url, $params = array(), $type = 'get', $header = array())
-    {
         $curl = curl_init();
         $header =  empty($header) ? self::defaultHeader($url) : $header;
         curl_setopt($curl, CURLOPT_URL, $url);
@@ -72,6 +62,15 @@ class Curl
             $count++;
         }
         return $response;
+    }
+
+    private static function urlMergeQuery($url, $query = array())
+    {
+        if (!empty($query)) {
+            $url .= strpos($url, '?') ? '&' : '?';
+            $url .= http_build_query($query);
+        }
+        return $url;
     }
 
     public static function formatPost($post)

@@ -19,8 +19,8 @@ trait DaoTrait
     {
         $this->daoConfig = new DaoConfig();
         $this->setDaoConfig();
-        assertOrException(!empty($this->daoConfig->table), 'not set table');
-        assertOrException(!empty($this->daoConfig->primaryKey), 'primary key not set');
+        assert_exception(!empty($this->daoConfig->table), 'not set table');
+        assert_exception(!empty($this->daoConfig->primaryKey), 'primary key not set');
         $this->daoTransform = new DaoTransform($this->daoConfig);
         $this->daoFilter = new DaoFilter($this->daoConfig);
     }

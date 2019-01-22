@@ -33,7 +33,7 @@ class Dot
         // 一层一层搜索键值数组
         $dot = explode('.', $dot);
         foreach ($dot as $key) {
-            assert_or_exception(isset($data[$key]), 'has no item:' . $key);
+            assert_exception(isset($data[$key]), 'has no item:' . $key);
             $data = $data[$key];
         }
         return $data;

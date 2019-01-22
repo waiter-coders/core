@@ -89,7 +89,7 @@ class Redis
 
     private function newRedis($config)
     {
-        assertOrException(isset($config['host']) && isset($config['port']), 'redis config error');
+        assert_exception(isset($config['host']) && isset($config['port']), 'redis config error');
         $redis = new \Redis();
         $redis->connect($config['host'], $config['port'], $this->connectTimeOut);
         if (isset($config['pass'])) {

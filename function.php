@@ -6,7 +6,7 @@
  */
 
  // 断言正确，否则抛出异常
-function assert_or_exception($boolean, $errorMessage, $code = 500)
+function assert_exception($boolean, $errorMessage, $code = 500)
 {
     if (!$boolean) {
         throw new \Exception($errorMessage, $code);
@@ -16,15 +16,15 @@ function assert_or_exception($boolean, $errorMessage, $code = 500)
 // 不同于array_merge_recursive，array_merge_recursive_cover相同键名时，后者覆盖前者
 function array_deep_cover($baseArray, $mergeArray)
 {
-    assert_or_exception(is_array($baseArray), 'baseArray input is not array:' . json_encode($baseArray));
-    assert_or_exception(is_array($mergeArray), 'mergeArray input is not array:' . json_encode($mergeArray));
+    assert_exception(is_array($baseArray), 'baseArray input is not array:' . json_encode($baseArray));
+    assert_exception(is_array($mergeArray), 'mergeArray input is not array:' . json_encode($mergeArray));
     foreach ($mergeArray as $key=>$value) {
         if (is_array($value)) {
             !isset($baseArray[$key]) && $baseArray[$key] = array();
             $baseArray[$key] = array_deep_cover($baseArray[$key], $value);
         } else {
             $baseArray[$key] = $value;
-        }
+        } 
     }
     return $baseArray;
 }
@@ -40,7 +40,7 @@ function load_configs($fileNames, $basePaths)
             $filePath = $basePath . DIRECTORY_SEPARATOR . $fileName;
             if (is_file($filePath)) {
                 $targetConfig = require $filePath;
-                assert_or_exception(is_array($targetConfig), 'config not return array:' . $filePath);
+                assert_exception(is_array($targetConfig), 'config not return array:' . $filePath);
                 $config = array_deep_cover($config, $targetConfig);
             }
         }
@@ -61,7 +61,7 @@ function instance($class, $params = array())
 }
 
 // 调用类方法的快捷函数
-function method($action, $params, $isInstance = true)
+function action($action, $params, $isInstance = true)
 {
     list($class, $method) = \Waiterphp\Core\Dot\Dot::dotToMethod($action);
     $object = $isInstance ? instance($class) : factory($class);
@@ -108,7 +108,22 @@ function cache($cacheType)
 
 }
 
+function curl($url, $params = array(), $type = 'get', $header = array())
+{
+    return \Waiterphp\Core\Http\Curl::sendRequest($url, $params, $type, $header);
+}
+
+function filter($data)
+{
+    return \Waiterphp\Core\Filter\Filter::instance($data);
+}
+
 function build()
+{
+
+}
+
+function render($template, $params = array(), $engine = 'smarty')
 {
 
 }

@@ -26,7 +26,7 @@ class Where
         }
         $value = !is_array($value) ? array($value) : $value; // 参数都转化为数组，方便参数间的合并
         $where = self::parseItemWhere($key, $value);
-        assertOrException(substr_count($where, '?') == count($value), 'param num error:' . $where. json_encode($value));
+        assert_exception(substr_count($where, '?') == count($value), 'param num error:' . $where. json_encode($value));
         return array($where, $value);
     }
 
