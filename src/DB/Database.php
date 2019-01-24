@@ -1,7 +1,7 @@
 <?php
 namespace Waiterphp\Core\DB;
 
-use Waiterphp\Core\DB\Connection\PdoDatabaseInstance as PdoDatabaseInstance;
+use Waiterphp\Core\DB\Connection\PdoConnection as PdoConnection;
 /*
  * 查询构建器
  *
@@ -53,7 +53,7 @@ class Database
         $name = empty($name) ? self::$defaultName : $name;
         assert_exception(isset(self::$config[$name]), 'not has connection config:' . $name);
         if (!isset(self::$connection[$name])) {
-            self::$connection[$name] = new PdoDatabaseInstance(self::$config[$name]);
+            self::$connection[$name] = new PdoConnection(self::$config[$name]);
         }
         return self::$connection[$name];
     }

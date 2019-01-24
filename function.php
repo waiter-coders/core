@@ -74,12 +74,17 @@ function set_env($key, $value = null)
     // 兼容直接赋值数组
     if (is_array($key)) {
         foreach ($key as $subKey=>$subValue) {
-            \Waiterphp\Core\Env\Context::instance()->set($subKey, $subValue);
+            set_env($subKey, $subValue);
         }
     }
     // kv赋值
     else {
         \Waiterphp\Core\Env\Context::instance()->set($key, $value);
+        if ($key == 'database') {
+            foreach ($value as $key=>$value) {
+                \Waiterphp\Core\DB\Database::register($value, $key);
+            }            
+        }
     }    
 }
 

@@ -1,8 +1,8 @@
 <?php
 namespace Waiterphp\Core\DB;
 
-use Waiterphp\Core\Db\Parse\Where as DB_Where;
-use Waiterphp\Core\Db\Parse\Join as DB_Join;
+use Waiterphp\Core\DB\Parse\Where as DB_Where;
+use Waiterphp\Core\DB\Parse\Join as DB_Join;
 
 class Query
 {

@@ -6,17 +6,13 @@ class TestFunction extends TestCase
 {
     public function test_load_configs()
     {
-        $configs = load_configs('web.php', __DIR__ . 'config');
+        $configs = load_configs(['web.php'], [__DIR__ . '/config']);
+        $this->assertTrue(isset($configs['database']));
     }
 
-    public function test_set_env()
+    public function test_set_get_env()
     {
-        set_env('app_name', 'test');
-    }
-
-    public function test_get_env()
-    {
-        set_env('app_name', 'test');
+        set_env('app_name', 'test'); 
         $app_name = get_env('app_name');
         $this->assertEquals($app_name, 'test');
     }
