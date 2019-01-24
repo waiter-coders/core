@@ -114,12 +114,12 @@ function table($table, $name = 'default') // 数据库访问
 
 function request()
 {
-
+    return \Waiterphp\Core\Http\Request::instance();
 }
 
 function cache($cacheType)
 {
-
+    return '';
 }
 
 function curl($url, $params = array(), $type = 'get', $header = array())

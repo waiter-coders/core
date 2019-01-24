@@ -16,7 +16,11 @@ class Filter
 
     public static function instance($data)
     {
-        return new self($data);
+        static $instance = null;
+        if ($instance == null) {
+            $instance = new self($data);
+        }
+        return $instance;
     }
 
     private function __construct($data)

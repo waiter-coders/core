@@ -5,22 +5,31 @@ namespace Waiterphp\Core\Http;
 
 class Request
 {
-    public static function protocol()
+    public static function instance()
+    {
+        static $instance = null;
+        if ($instance == null) {
+            $instance = new self();
+        }
+        return $instance;
+    }
+
+    public function protocol()
     {
         return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
     }
 
-    public static function host()
+    public function host()
     {
         return rtrim(self::protocol().$_SERVER['HTTP_HOST'], '\\');
     }
 
-    public static function scriptName()
+    public function scriptName()
     {
 
     }
 
-    public static function path($pos = 0)
+    public function path($pos = 0)
     {
         $path = isset($_SERVER['PATH_INFO']) ? ltrim($_SERVER['PATH_INFO'], '/') : '';
         if ($pos == 0) {
@@ -30,17 +39,17 @@ class Request
         return $path[$pos];
     }
 
-    public static function fullUrl()
+    public function fullUrl()
     {
         return rtrim(self::host(). '/'. $_SERVER['SCRIPT_NAME'], '\\');
     }
 
-    public static function refer()
+    public function refer()
     {
         return isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : null;
     }
 
-    public static function query($key = null)
+    public function query($key = null)
     {
         if ($key === null) {
             return $_GET;
@@ -49,7 +58,7 @@ class Request
         }
     }
 
-    public static function post($key = null)
+    public function post($key = null)
     {
         // 获取post数据
         $post = $_POST;
@@ -65,7 +74,7 @@ class Request
         }
     }
 
-    public static function redirect($jumpUrl)
+    public function redirect($jumpUrl)
     {
         // 没有包含域名的自动包含域名
         if (strncmp ($jumpUrl, 'http', 4)) {
@@ -75,7 +84,7 @@ class Request
         header("Location:" . $jumpUrl);
     }
 
-    public static function ip()
+    public function ip()
     {
         $ip = '';
         if(getenv('HTTP_CLIENT_IP') && strcasecmp(getenv('HTTP_CLIENT_IP'), 'unknown')) {
@@ -90,7 +99,7 @@ class Request
         return preg_match ( '/[\d\.]{7,15}/', $ip, $matches ) ? $matches [0] : '';
     }
 
-    public static function isAjax()
+    public function isAjax()
     {
         if (!isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
             return false;
