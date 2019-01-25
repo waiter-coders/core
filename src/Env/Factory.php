@@ -5,11 +5,11 @@ use Waiterphp\Core\Dot\Dot as Dot;
 
 class Factory
 {
-    private static $alias = array(); // 类别名
-    private static $instance = array(); // 单例类
+    private static $alias = []; // 类别名
+    private static $instance = []; // 单例类
 
     // 单例工具
-    public static function instance($class, $params = array())
+    public static function instance($class, $params = [])
     {
         $class = (strpos($class, '.') > 0) ? Dot::dotToClass($class) : $class;
         if (isset(self::$instance[$class])) {
@@ -19,7 +19,7 @@ class Factory
         return self::$instance[$class];
     }
 
-    public static function factory($class, $params = array())
+    public static function factory($class, $params = [])
     {
         $class = (strpos($class, '.') > 0) ? Dot::dotToClass($class) : $class;
         return empty($params) ? new $class() : new $class($params);

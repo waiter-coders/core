@@ -2,7 +2,7 @@
 namespace Waiterphp\Core\Filter;
 trait FilterTrait
 {
-    private $data = array();
+    private $data = [];
 
     protected function setData($data)
     {

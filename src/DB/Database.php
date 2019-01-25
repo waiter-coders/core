@@ -36,8 +36,8 @@ use Waiterphp\Core\DB\Connection\PdoConnection as PdoConnection;
 
 class Database
 {
-    private static $config = array();
-    private static $connection = array();
+    private static $config = [];
+    private static $connection = [];
     private static $defaultName = 'default';
 
 
@@ -115,16 +115,16 @@ class Database
         if (!isset($config['password'])) {
             $config['password'] = '';
         }
-        $read = array();
+        $read = [];
         if (isset($config['read'])) {
             $read = $config['read'];
             unset($config['read']);
         }
-        $servers = array('read'=>array(), 'write'=>array($config));
-        $servers['read'] = array();
+        $servers = ['read'=> [], 'write'=>[$config]];
+        $servers['read'] = [];
         if (!empty($read)) {
             foreach ($read as $host) {
-                $servers['read'][] = array_merge($config, array('host'=>$host));
+                $servers['read'][] = array_merge($config, ['host'=>$host]);
             }
         }
         return $servers;

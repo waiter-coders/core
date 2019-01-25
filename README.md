@@ -1,13 +1,16 @@
 ### waiterphp 核心类库
 
-该项目提供了php的一些基础操作封装。
+该项目提供了php的一些基础操作封装。可直接采用采用composer装载该类。
+
+以下是类库的相关功能介绍。
 
 #### 装载配置
-可通过以下方式装载和获取配置文件
+可通过以下方式获取配置文件中的数据。
 ```php
 $configs = load_configs($fileNames, $basePaths);
 ```
 函数可以从basePaths设置的多个路径里面，加载fileNames里面设置的多个文件中的内容，覆盖顺序为后者覆盖前者。
+
 
 #### 设置当前环境
 通过以下函数设置环境变量和获取环境变量：
@@ -20,81 +23,91 @@ print get_env('app_name');
  
 ```php
 set_env('database.default.username', 'test');
-set_env('database', array(
-	'default'=>array(
+set_env('database', [
+	'default'=>[
 		'username'=>'test'
-	)
-));
+	]
+]);
+```
+也可以直接写入数组：
+```php
+set_env(['database'=>['default'=>[
+	'host'=>'localhost',
+	'username'=>'root',
+	'password'=>'',
+	'database'=>'tests'
+]]])
 ```
 注意：
-> 环境变量的设置，后者会覆盖前者
-> 环境变量有一些默认键名，如database为数据库设置，cache为缓存设置,如cache.redis,cache.file. 更多设置见：
+> 重复设置的环境变量，后者会覆盖前者
+> 环境变量有一些默认键名，如database为数据库设置，cache为缓存设置,函数会检测该键名，并自动初始化到相关类库
 
-#### 异常检测
-用法如下：
-```php
-assert_exception(false, '程序异常！', 500);
-```
 
 #### 访问数据库
 
-```
+```php
 // 设置数据库配置，可通过load_configs从文件直接装载
-set_env('database.default', array(
+set_env('database.default', [
 	'host'=>'127.0.0.1', 
 	'username'=>'root', 
 	'password'=>'', 
-	'database'=>'test'
-));
+	'database'=>'tests'
+]);
 
 // 获取多行数据
-table('article')->where(array(
+table('article')->where([
 		'userId=>124,
-	))->orderBy('articleId desc')
+	])->orderBy('articleId desc')
 	->limit(10)
 	->offset(0)
 	->fetchAll();
 
 // 获取单行
-table('user')->where(array(
-	'userId'=>134
-))->fetchRow();
-```
+table('article')->where([
+	'article'=>1
+])->fetchRow();
 
+// 写入数据
+table('article')->insert();
+
+// 更新数据
+table('article')->where([])->update();
+
+// 统计行数
+table('article')->where([])->count();
+
+// 分组
+table('article')->select('userId,count(*)')->where([])->groupBy('')->fetchAll();
+```
 #### 访问缓存
 
 ```php
+//file
+
+
+// redis
 set_env('cache.redis', []);
 cache('redis')->hmget('some_key');
+
+// memcache
+
 ```
 
-#### http请求
-
+#### 页面渲染工具
 ```php
-print request()->hostname();
-print request()->query();
-print request()->query('userId');
-print request()->post();
-print request()->post('userId');
+set_env('view', []);
+echo render('user/login.html', ['username'=>'测试'], 'smarty');
 ```
+> 第三个参数可以选择你采用的渲染引擎，默认为smarty。
+> 目前可支持的有：smarty、twig
 
-#### curl请求
-
+可以设置自定义的第三个参数，要求类本身实现render方法。如下：
 ```php
-curl($url, $params, $httpType, $header);
+set_env('view', []);
+render('user/login.html', ['username'=>'测试'], 'tools.myView');
 ```
 
-#### 文件操作
-```php
-get_files('/home/user');
-write('/home/user/test.txt', $content, 'a+');
-```
-
-#### 事件绑定和触发
-```php
-bind_to_env($tab, $action);
-env_trigger($tab, $params = array());
-```
+> 页面渲染需在您自己的项目composer.json中加入相关类库，
 
 #### dao的使用
 ```
@@ -123,21 +136,39 @@ filter($data)->getInt('userId', '');
 注意：
 >  第二个参数为默认值。如果没有设置，当获取不到数据时，抛出异常！
 
+#### 异常检测
+用法如下：
+```php
+assert_exception(false, '程序异常！', 500);
+```
+#### 事件绑定和触发
+```php
+bind_to_env($tab, $action);
+env_trigger($tab, $params = []);
+```
 #### 构建工具
 ```php
 build();
 ```
 
-#### 页面渲染工具
-```php
-set_env('view', array());
-echo render('user/login.html', array('username'=>'测试'), 'smarty');
-```
-> 第三个参数可以选择你采用的渲染引擎，默认为smarty。
-> 目前可支持的有：smarty、twig
+#### http请求
 
-可以设置自定义的第三个参数，要求类本身实现render方法。如下：
 ```php
-set_env('view', array());
-render('user/login.html', array('username'=>'测试'), 'tools.myView');
+print request()->hostname();
+print request()->query();
+print request()->query('userId');
+print request()->post();
+print request()->post('userId');
+```
+
+#### curl请求
+
+```php
+curl($url, $params, $httpType, $header);
+```
+
+#### 文件操作
+```php
+get_files('/home/user');
+write('/home/user/test.txt', $content, 'a+');
 ```

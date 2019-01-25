@@ -41,7 +41,7 @@ class File
 
     static public function getFiles($dir)
     {
-        $files = array();
+        $files = [];
         $handle = opendir($dir);
         assert_exception($handle == true, 'can not open dir:' . $dir);
         while (($file = readdir($handle)) !== false)//循环读取目录中的文件名并赋值给$file

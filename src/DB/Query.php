@@ -10,7 +10,7 @@ class Query
     public $columns = '*';
     public $mainTable = null;
     public $join = '';
-    public $where = array();
+    public $where = [];
     public $groupBy = '';
     public $having ='';
     public $orderBy = '';
@@ -99,7 +99,7 @@ class Query
     {
         $this->select($column);
         $list = $this->fetchAll();
-        $return = array();
+        $return = [];
         foreach ($list as $record) {
             $return[] = $record[$column];
         }
@@ -159,7 +159,7 @@ class Query
             $sql .= ' order by ' . $this->orderBy;
         }
         $sql .= ' limit ' . $this->limit;
-        return array($sql, $queryParams);
+        return [$sql, $queryParams];
     }
 
     /*
@@ -210,9 +210,9 @@ class Query
 
     public function increment($column, $num = 1)
     {
-        return $this->update(array(
+        return $this->update([
             $column . ' = ' . $column . ' + ' . $num
-        ));
+        ]);
     }
 
     public function decrement($column, $num = 1)
@@ -232,8 +232,8 @@ class Query
 
     private function parseUpdateData($data)
     {
-        $sql = array();
-        $params = array();
+        $sql = [];
+        $params = [];
         foreach ($data as $key => $value) {
             if (is_int($key)) {
                 $sql[] = $value;
@@ -242,6 +242,6 @@ class Query
                 $params[] = $value;
             }
         }
-        return array(implode(',', $sql), $params);
+        return [implode(',', $sql), $params];
     }
 }

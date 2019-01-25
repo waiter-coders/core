@@ -3,10 +3,10 @@ namespace Waiterphp\Core\DB\Connection;
 
 class PdoConnection extends Connection
 {
-    private $config = array();
-    private $connectionPool = array();
+    private $config = [];
+    private $connectionPool = [];
     private $lastSql = '';
-    private $lastParams = array();
+    private $lastParams = [];
     private $lastInsertId = 0;
     private $lastAffectRows = 0;
     public $useWriteServers = false;
@@ -38,7 +38,7 @@ class PdoConnection extends Connection
         $this->cancelForceWriteServers();
     }
 
-    public function execute($sql, $params = array())
+    public function execute($sql, $params = [])
     {
         try {
             $this->resetQueryStatus($sql, $params);
@@ -53,17 +53,17 @@ class PdoConnection extends Connection
         }
     }
 
-    public function fetchRow($sql, $params = array())
+    public function fetchRow($sql, $params = [])
     {
         return $this->fetchData($sql, $params, 'fetch');
     }
 
-    public function fetchAll($sql, $params = array())
+    public function fetchAll($sql, $params = [])
     {
         return $this->fetchData($sql, $params, 'fetchAll');
     }
 
-    public function fetchColumn($sql, $params = array())
+    public function fetchColumn($sql, $params = [])
     {
         return $this->fetchData($sql, $params, 'fetchColumn');
     }
@@ -80,7 +80,7 @@ class PdoConnection extends Connection
 
     public function lastSql()
     {
-        return array($this->lastSql, $this->lastParams);
+        return [$this->lastSql, $this->lastParams];
     }
 
     public function onlyUseWriteServers()
@@ -93,7 +93,7 @@ class PdoConnection extends Connection
         $this->useWriteServers = false;
     }
 
-    private function fetchData($sql, $params = array(), $fetchType)
+    private function fetchData($sql, $params = [], $fetchType)
     {
         try {
             $this->resetQueryStatus($sql, $params);
@@ -101,7 +101,7 @@ class PdoConnection extends Connection
             $statement = $this->connection($connectType)->prepare($sql);
             $statement->setFetchMode(\PDO::FETCH_ASSOC);
             $statement->execute($params);
-            return call_user_func(array($statement, $fetchType));
+            return call_user_func([$statement, $fetchType]);
         }catch(\PDOException $e){
             throw new \Exception('sql error:' . $this->lastSql . PHP_EOL . json_encode($this->lastParams));
         }

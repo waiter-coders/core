@@ -2,7 +2,7 @@
 namespace Waiterphp\Core\Routing;
 class Router
 {
-    private $routeTable = array();
+    private $routeTable = [];
 
     public function group()
     {
@@ -14,7 +14,7 @@ class Router
         $this->routeTable = $routeTable;
     }
 
-    public function route($signal, $params = array())
+    public function route($signal, $params = [])
     {
         $routeTarget = $this->target($signal);
         return $this->routeTo($routeTarget, $params);
@@ -53,7 +53,7 @@ class Router
         return $action;
     }
 
-    private function routeTo($action, $params = array())
+    private function routeTo($action, $params = [])
     {
         return method($action, $params);
     }

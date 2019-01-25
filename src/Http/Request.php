@@ -64,7 +64,7 @@ class Request
         $post = $_POST;
         if (empty($post)) {
             $post = file_get_contents('php://input');
-            $post = !empty($post) ? json_decode($post, true) : array(); 
+            $post = !empty($post) ? json_decode($post, true) : []; 
         } 
         // 查找所需值
         if ($key === null) {

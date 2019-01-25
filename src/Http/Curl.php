@@ -3,7 +3,7 @@ namespace Waiterphp\Core\Http;
 
 class Curl
 {
-    public static function sendRequest($url, $params = array(), $type = 'get', $header = array(), $options = array())
+    public static function sendRequest($url, $params = [], $type = 'get', $header = [], $options = [])
     {
         if ($type == 'get' && !empty($params)) {
             $url = self::urlMergeQuery($url, $params);
@@ -33,7 +33,7 @@ class Curl
 
     private static function defaultHeader($url)
     {
-        $header = array();
+        $header = [];
         $header[] = "Host: " . self::host($url);
         $header[] = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
         $header[] = "Connection: keep-alive";
@@ -64,7 +64,7 @@ class Curl
         return $response;
     }
 
-    private static function urlMergeQuery($url, $query = array())
+    private static function urlMergeQuery($url, $query = [])
     {
         if (!empty($query)) {
             $url .= strpos($url, '?') ? '&' : '?';

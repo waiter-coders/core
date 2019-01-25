@@ -20,7 +20,7 @@ function array_deep_cover($baseArray, $mergeArray)
     assert_exception(is_array($mergeArray), 'mergeArray input is not array:' . json_encode($mergeArray));
     foreach ($mergeArray as $key=>$value) {
         if (is_array($value)) {
-            !isset($baseArray[$key]) && $baseArray[$key] = array();
+            !isset($baseArray[$key]) && $baseArray[$key] = [];
             $baseArray[$key] = array_deep_cover($baseArray[$key], $value);
         } else {
             $baseArray[$key] = $value;
@@ -32,9 +32,9 @@ function array_deep_cover($baseArray, $mergeArray)
 // 从文件在加载配置信息的快捷函数
 function load_configs($fileNames, $basePaths)
 {
-    $config = array();
-    $fileNames = is_string($fileNames) ? array($fileNames) : $fileNames;
-    $basePaths = is_string($basePaths) ? array($basePaths) : $basePaths;
+    $config = [];
+    $fileNames = is_string($fileNames) ? [$fileNames] : $fileNames;
+    $basePaths = is_string($basePaths) ? [$basePaths] : $basePaths;
     foreach ($basePaths as $basePath) {
         foreach ($fileNames as $fileName) {
             $filePath = $basePath . DIRECTORY_SEPARATOR . $fileName;
@@ -49,13 +49,13 @@ function load_configs($fileNames, $basePaths)
 }
 
 // 工厂生产类的快捷函数
-function factory($class, $params = array())
+function factory($class, $params = [])
 {
     return \Waiterphp\Core\Env\Factory::factory($class, $params);
 }
 
 // 工厂生产单例的快捷函数
-function instance($class, $params = array())
+function instance($class, $params = [])
 {
     return \Waiterphp\Core\Env\Factory::instance($class, $params);
 }
@@ -65,7 +65,7 @@ function action($action, $params, $isInstance = true)
 {
     list($class, $method) = \Waiterphp\Core\Dot\Dot::dotToMethod($action);
     $object = $isInstance ? instance($class) : factory($class);
-    return call_user_func_array(array($object, $method), $params);
+    return call_user_func_array([$object, $method], $params);
 }
 
 // 设置当前环境信息的快捷函数
@@ -101,7 +101,7 @@ function bind_to_env($tab, $action)
 }
 
 // 触发事件的快捷函数
-function env_trigger($tab, $params = array())
+function env_trigger($tab, $params = [])
 {
     \Waiterphp\Core\Env\Context::instance()->trigger($tab, $params);
 }
@@ -122,7 +122,7 @@ function cache($cacheType)
     return '';
 }
 
-function curl($url, $params = array(), $type = 'get', $header = array())
+function curl($url, $params = [], $type = 'get', $header = [])
 {
     return \Waiterphp\Core\Http\Curl::sendRequest($url, $params, $type, $header);
 }
@@ -137,7 +137,7 @@ function build()
 
 }
 
-function render($template, $params = array(), $engine = 'smarty')
+function render($template, $params = [], $engine = 'smarty')
 {
 
 }

@@ -1,6 +1,8 @@
 <?php
 namespace Waiterphp\Core\Env;
 
+use Waiterphp\Core\Dot\Dot as Dot;
+
 class Context
 {
     public static function instance()
@@ -12,17 +14,24 @@ class Context
         return $instance;
     }
 
-    private $values = array();
-    private $events = array();
+    private $values = [];
+    private $events = [];
 
     public function set($key, $value)
     {
-        $this->values[$key] = $value;
+        $setArray = [];
+        $dotKeys = array_reverse(explode('.', $key));
+        $firstKey = array_shift($dotKeys);
+        $setArray[$firstKey] = $value;
+        foreach ($dotKeys as $dotKey) {
+            $setArray = [$dotKey=>$setArray];
+        }
+        $this->values = array_deep_cover($this->values, $setArray);
     }
 
     public function get($docIndex)
     {
-        return isset($this->values[$docIndex]) ? $this->values[$docIndex] : null;
+        return Dot::findDataByDot($docIndex, $this->values);
     }
 
     public function bind($tab, $action)
@@ -30,7 +39,7 @@ class Context
         $this->events[$tab][] = $action;
     }
 
-    public function trigger($tab, $params = array())
+    public function trigger($tab, $params = [])
     {
         if (!isset($this->events[$tab])) {
             return false;

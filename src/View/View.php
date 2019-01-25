@@ -16,7 +16,7 @@ namespace Waiterphp\Core\View;
 class View
 {
     private static $config = null;
-    private static $params = array();
+    private static $params = [];
 
     public static function register(array $configs)
     {
@@ -51,15 +51,15 @@ class View
     public static function display($template)
     {
         $view = self::instance();
-        $params = (!empty(self::$config['init'])) ? self::$config['init'] : array();
+        $params = (!empty(self::$config['init'])) ? self::$config['init'] : [];
         $params = array_merge($params, self::$params);
         $view->render($template, $params);
     }
 
-    public static function fetch($template, $params = array())
+    public static function fetch($template, $params = [])
     {
         $view = self::instance();
-        $params = (!empty(self::$config['init'])) ? self::$config['init'] : array();
+        $params = (!empty(self::$config['init'])) ? self::$config['init'] : [];
         $params = array_merge($params, self::$params);
         return $view->fetch($template, $params);
     }

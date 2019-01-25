@@ -59,7 +59,7 @@ class DaoFilter_Factory
 
     private function getSystemFilters($name)
     {
-        return array(function(){}, function(){});
+        return [function(){}, function(){}];
     }
 }
 
@@ -169,7 +169,7 @@ class DaoFilter_Regex
             $message = empty($min) ? ',长度最多为' . $max . '位' : $message;
             $message = $this->validation[$regex]['message'] . $message;
         }
-        return array('regex'=>$regexstr, 'message'=>$message);
+        return ['regex'=>$regexstr, 'message'=>$message];
     }
 }
 
@@ -182,7 +182,7 @@ abstract class DaoPipeline
     {
         // 空值处理
         if (empty($values)) {
-            return array();
+            return [];
         }
         // 多条记录处理
         if (isset($values[0]) && is_array($values[0])) {
@@ -203,7 +203,7 @@ abstract class DaoPipeline
 
     private static function fieldInstance($pipeline)
     {
-        static $classes = array();
+        static $classes = [];
         if (!isset($classes[$pipeline])) {
             $Pipeline = ucfirst($pipeline) . 'Pipeline';
             $classes[$pipeline] = new $Pipeline();

@@ -12,9 +12,23 @@ class TestFunction extends TestCase
 
     public function test_set_get_env()
     {
-        set_env('app_name', 'test'); 
+        // 设置环境变量
+        set_env('app_name', 'test_name'); 
         $app_name = get_env('app_name');
-        $this->assertEquals($app_name, 'test');
+        $this->assertEquals($app_name, 'test_name');
+
+        // dot设置
+        set_env('database.default.username', 'dot_tests');
+        $this->assertEquals(get_env('database.default.username'), 'dot_tests');
+
+        // 直接数组写入，后者覆盖前者
+        set_env(['database'=>['default'=>[
+            'host'=>'localhost',
+            'username'=>'root',
+            'password'=>'',
+            'database'=>'tests'
+        ]]]);
+        $this->assertEquals(get_env('database.default.username'), 'root');
     }
 
     public function test_assert_exception()

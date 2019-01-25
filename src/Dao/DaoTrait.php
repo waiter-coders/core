@@ -11,9 +11,9 @@ trait DaoTrait
     private $daoTransform; // 信息转换
     private $daoFilter; // 过滤器
     private $pipelines; // 数据处理通道
-    private $tableFields = array();
-    private $query = array();
-    private $defaultQuery = array('fields'=>'main', 'where'=>array(), 'limit'=>'12', 'offset'=>0, 'orderBy'=>'');
+    private $tableFields = [];
+    private $query = [];
+    private $defaultQuery = ['fields'=>'main', 'where'=> [], 'limit'=>'12', 'offset'=>0, 'orderBy'=>''];
 
     public function __construct()
     {
@@ -145,9 +145,9 @@ trait DaoTrait
             if (!isset($value[$dataField])) {
                 throw new \Exception('filed not exist');
             }
-            $record = $query->getRow(array(
+            $record = $query->getRow([
                 $joinField=>$value[$dataField],
-            ));
+            ]);
             $data[$key] = $value + $record;
         }
         return true;
@@ -167,7 +167,7 @@ trait DaoTrait
     public function currentQuery()
     {
         // 获取查询信息
-        $query = array_merge($this->defaultQuery, $this->query); $this->query = array();
+        $query = array_merge($this->defaultQuery, $this->query); $this->query = [];
 
         // dao转化为db数据
         $select = $this->daoTransform->getTrueFields($query['fields']);
@@ -201,7 +201,7 @@ trait DaoTrait
                 $idField = $this->daoConfig->joinTables[$table]['joinField'];
                 $table = $this->daoConfig->joinTables[$table]['table'];
             }
-            table($table)->where(array($idField=>$id))->update($data);
+            table($table)->where([$idField=>$id])->update($data);
         }
         return true;
     }
@@ -209,9 +209,9 @@ trait DaoTrait
     // 根据某一字段值更新信息
     public function updateField($id, $key, $value)
     {
-        return $this->updateById($id, array(
+        return $this->updateById($id, [
             $key=>$value,
-        ));
+        ]);
     }
 
     // 添加新记录
@@ -238,9 +238,9 @@ trait DaoTrait
     // 根据Id更新和替换
     public function replaceById($id, $refresh)
     {
-        $hasId = $this->getRow(array(
+        $hasId = $this->getRow([
             $this->primaryKey=>$id,
-        ));
+        ]);
         if ($hasId) {
             return $this->updateById($id, $refresh);
         } else {
@@ -253,16 +253,16 @@ trait DaoTrait
     {
         // 软删除
         if (!empty($this->daoConfig->softDeleteFields)) {
-            return $this->updateById($id, array(
+            return $this->updateById($id, [
                 $this->daoConfig->softDeleteFields=>1,
-            ));
+            ]);
         }
         // 硬删除
         else {
             return table($this->daoConfig->table, $this->daoConfig->database)
-                ->where(array(
+                ->where([
                     $this->daoConfig->primaryKey=>$id,
-                ))->delete();
+                ])->delete();
         }
     }
 
@@ -280,7 +280,7 @@ trait DaoTrait
      */
     private function getDefaultValues()
     {
-        $values = array();
+        $values = [];
         foreach ($this->daoConfig->fields as $field=> $params) {
             if (isset($params['default'])) {
                 $values[$field] = $params['default'];
@@ -291,7 +291,7 @@ trait DaoTrait
 
     private function groupByTables($data)
     {
-        $dataByTable = array();
+        $dataByTable = [];
         foreach ($data as $field=>$value) {
             $table = $this->daoConfig->table;
             if (isset($this->daoConfig->fields[$field]['trueField'])) {

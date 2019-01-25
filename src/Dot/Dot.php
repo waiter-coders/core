@@ -14,7 +14,7 @@ class Dot
     {
         $class = explode('.', $dot);
         $method = array_pop($class);
-        return array(dotToClass($class), $method);
+        return [dotToClass($class), $method];
     }
 
     // 把 controller.home类型的转化为ControllerHome类

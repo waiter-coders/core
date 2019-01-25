@@ -19,7 +19,7 @@ class File
     {
         $file = self::$path . DIRECTORY_SEPARATOR . $key;
         $expireTime = empty($expireTime) ? 0 : time() + $expireTime;
-        $content = json_encode(array('value'=>$value, 'expire'=>$expireTime));
+        $content = json_encode(['value'=>$value, 'expire'=>$expireTime]);
         file_put_contents($file, $content);
     }
 

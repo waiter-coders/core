@@ -8,26 +8,26 @@ class Where
 {
     public static function parse(array $where)
     {
-        $sql = array();
-        $params = array();
+        $sql = [];
+        $params = [];
         foreach ($where as $key => $value) {
             list($itemSql, $itemParams) = self::parseWhere(trim($key), $value);
             $sql[] = '(' . $itemSql . ')';
             $params = array_merge($params, $itemParams);
         }
         $sql = implode(' and ', $sql);
-        return array($sql, $params);
+        return [$sql, $params];
     }
 
     private static function parseWhere($key, $value)
     {
         if (is_numeric($key)) { // 无参数 
-            return array($value, array());
+            return [$value, []];
         }
-        $value = !is_array($value) ? array($value) : $value; // 参数都转化为数组，方便参数间的合并
+        $value = !is_array($value) ? [$value] : $value; // 参数都转化为数组，方便参数间的合并
         $where = self::parseItemWhere($key, $value);
         assert_exception(substr_count($where, '?') == count($value), 'param num error:' . $where. json_encode($value));
-        return array($where, $value);
+        return [$where, $value];
     }
 
     private static function parseItemWhere($key, $value)

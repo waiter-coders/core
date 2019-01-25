@@ -11,25 +11,25 @@ class DaoConfig
     public $table; // 表名
     public $primaryKey; // 主键
     public $database = null;
-    public $joinTables = array(); // 连接从表
+    public $joinTables = []; // 连接从表
 
     // 字段信息
-    public $fields = array(); // 字段基础信息
-    public $fieldsGroups = array(); // 字段分组
-    public $readonlyFields = array(); // 不可被外部修改的字段
-    public $virtualField = array(); // 虚拟字段（外部可见，但内部其实没有）
-    public $fieldsFilters = array(); // 数据过滤器
+    public $fields = []; // 字段基础信息
+    public $fieldsGroups = []; // 字段分组
+    public $readonlyFields = []; // 不可被外部修改的字段
+    public $virtualField = []; // 虚拟字段（外部可见，但内部其实没有）
+    public $fieldsFilters = []; // 数据过滤器
 
     // query相关
-    public $defaultQuery = array(); // 默认查询
+    public $defaultQuery = []; // 默认查询
     public $softDeleteFields = false; // 软删除标识字段，默认为不存在
 
     //
-    private static $baseType = array(
-        'number'=>array('action'=>'regex', 'errorMessage'=>'必须为数字', 'regex'=>'\d+'), // 对应tinyint int 等
-        'string'=>array('action'=>'regex', 'errorMessage'=>'长度应该在@min～@max之间!', 'regex'=>'[\w|\W]{@min,@max}', 'min'=>1, 'max'=>255), // varchar char
-        'text'=>array('type'=>'text', 'filter'=>'string', 'params'=>'html'), // 没有html标签，
-        'html'=>array('action'=>'regex', 'errorMessage'=>'不能为空！', 'regex'=>'[\w|\W]{1,}'), //
+    private static $baseType = [
+        'number'=>['action'=>'regex', 'errorMessage'=>'必须为数字', 'regex'=>'\d+'], // 对应tinyint int 等
+        'string'=>['action'=>'regex', 'errorMessage'=>'长度应该在@min～@max之间!', 'regex'=>'[\w|\W]{@min,@max}', 'min'=>1, 'max'=>255], // varchar char
+        'text'=>['type'=>'text', 'filter'=>'string', 'params'=>'html'], // 没有html标签，
+        'html'=>['action'=>'regex', 'errorMessage'=>'不能为空！', 'regex'=>'[\w|\W]{1,}'], //
         'select'=>1, // 单选
         'multiSelect'=>1, // 多选
         'linkSelect'=>1, // 多字段层级联动
@@ -40,15 +40,15 @@ class DaoConfig
         'image'=>1, // path标准化
         'file'=>1, // path标准化
         'phone'=>1, // 手机号
-        'email'=>array('action'=>'regex', 'errorMessage'=>'邮箱格式错误', 'regex'=>'\w+@\w(\.\w+)+'),
-        'json'=>array('type'=>'varchar', 'filter'=>'string', 'params'=>'json'),
+        'email'=>['action'=>'regex', 'errorMessage'=>'邮箱格式错误', 'regex'=>'\w+@\w(\.\w+)+'],
+        'json'=>['type'=>'varchar', 'filter'=>'string', 'params'=>'json'],
 
         // json path url
-    );
+    ];
 
-    private static $baseFilters = array(
+    private static $baseFilters = [
 
-    );
+    ];
 
     public function __construct($table = '')
     {
@@ -68,14 +68,14 @@ class DaoConfig
     public function setPrimaryKey($primaryKey)
     {
         $this->primaryKey = $primaryKey;
-        $this->fields[$primaryKey] = array(
+        $this->fields[$primaryKey] = [
             'name'=>'id',
             'type'=>'number',
             'primaryKey'=>true,
-        );
+        ];
     }
 
-    public function setField($field, $type, $args = array())
+    public function setField($field, $type, $args = [])
     {
         $args = func_get_args();
         $field = array_shift($args);
@@ -83,7 +83,7 @@ class DaoConfig
         $type = array_shift($args);        
         assert_exception(!isset($this->fields[$field]), 'field all ready set:'.$field);
         assert_exception(isset(self::$baseType[$type]), 'field type not exist:' . $type);
-        $this->fields[$field] = array('field'=>$field, 'type'=>$type);
+        $this->fields[$field] = ['field'=>$field, 'type'=>$type];
         $this->fields[$field] = array_merge($this->fields[$field], $this->analyzeFieldArgs($type, $args));
         if (!empty($trueField)) {
             $this->fields[$field]['trueField'] = $trueField;
@@ -106,7 +106,7 @@ class DaoConfig
         $table = trim($table);$tableLabel = trim($tableLabel);
         $tableLabel = empty($tableLabel) ? $table : $tableLabel;
         $joinField = empty($joinField) ? $mainField : $joinField;
-        $this->joinTables[$tableLabel] = array('table'=>$table, 'mainField'=>$mainField, 'joinField'=>$joinField);
+        $this->joinTables[$tableLabel] = ['table'=>$table, 'mainField'=>$mainField, 'joinField'=>$joinField];
     }
 
     public function leftJoin($joinTable, $mainField, $joinField = null)
@@ -130,15 +130,15 @@ class DaoConfig
         $this->readonlyFields = array_merge($this->readonlyFields, $fields);
     }
 
-    public function setFilter($field, $input, $inputParams = array(), callable $output = null, $outputParams = array())
+    public function setFilter($field, $input, $inputParams = [], callable $output = null, $outputParams = [])
     {
         assert_exception((is_string($input) || (is_callable($input) && is_callable($output))), 'filter set error');
-        $this->fieldsFilters[$field][] = array('input'=>$input, 'inputParams'=>$inputParams, 'output'=>$output, 'outputParams'=>$outputParams);
+        $this->fieldsFilters[$field][] = ['input'=>$input, 'inputParams'=>$inputParams, 'output'=>$output, 'outputParams'=>$outputParams];
     }
 
     public function getFilterByName($filterName)
     {
-        return array(function(){}, function(){});
+        return [function(){}, function(){}];
     }
 
     public function setSoftDelete($field)
@@ -152,7 +152,7 @@ class DaoConfig
     // 解析字段参数
     public function analyzeFieldArgs($type, $args)
     {
-        $params = array();
+        $params = [];
         while (!empty($args)) {
             $arg = array_shift($args);
 
@@ -208,7 +208,7 @@ class DaoConfig
     private function formatField($field)
     {
         if (strpos($field, ' ') === false) {
-            return array('', $field);
+            return ['', $field];
         } else {
             $field = str_replace(' as ', ' ', $field);
             $field = trim(preg_replace('/[ ]{2,}/i', ' ', $field));

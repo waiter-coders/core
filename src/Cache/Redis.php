@@ -3,7 +3,7 @@ namespace Waiterphp\Core\Cache;
 
 class Redis
 {
-    static private $slaveMethod = array(
+    static private $slaveMethod = [
         'get' => '',
         'exists' => '',
         'getMultiple' => '',
@@ -55,9 +55,9 @@ class Redis
         'hGetAll' => '',
         'hExists' => '',
         'hMGet' => ''
-    );
-    private $config = array();
-    private $redisPool = array();
+    ];
+    private $config = [];
+    private $redisPool = [];
     private $connectTimeOut = 4;
 
     public function __construct($config)
@@ -73,7 +73,7 @@ class Redis
             $redis = $this->getRedis('master');
         }
 
-        return call_user_func_array(array($redis, $method), $params);
+        return call_user_func_array([$redis, $method], $params);
     }
 
     public function getRedis($type)

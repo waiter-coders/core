@@ -39,7 +39,7 @@ class DaoTransform
 
     public function getWhereFields($where)
     {
-        $fields = array();
+        $fields = [];
         $keys = array_keys($where);
         foreach ($keys as $key) {
             $fields[] = explode(' ', $key, 2)[0];
@@ -66,7 +66,7 @@ class DaoTransform
 
     public function getTrueFields($fields)
     {
-        $trueFields = array();
+        $trueFields = [];
         $fields = is_string($fields) ? explode(',', str_replace(' ', '', $fields)) : $fields;
         foreach ($fields as $field) {
             if (isset($this->daoConfig->fields[$field])) {
@@ -92,12 +92,12 @@ class DaoTransform
                 $this->tableFields[$tableName][] = $field;
             }
         }
-        return isset($this->tableFields[$table]) ? $this->tableFields[$table] : array();
+        return isset($this->tableFields[$table]) ? $this->tableFields[$table] : [];
     }
 
     private function fieldsTables(array $fields)
     {
-        $tables = array();
+        $tables = [];
         foreach ($fields as $field) {
             if (isset($this->daoConfig->fields[$field]) && isset($this->daoConfig->fields[$field]['table'])) {
                 $tables[$this->daoConfig->fields[$field]['table']] = 1;
@@ -111,7 +111,7 @@ class DaoTransform
 
     private function toTrueFields(array $fields)
     {
-        $trueFields = array();
+        $trueFields = [];
         foreach ($fields as $field) {
             $trueField = $this->trueField($field);
             if ($trueField) {
