@@ -55,7 +55,8 @@ set_env('database.default', [
 ]);
 
 // 获取多行数据
-$data = table('article')->select('articleId,userId,title,hit as hit_num')->where([
+$data = table('article')->select('articleId,userId,title,hit as hit_num')
+->where([
 	'userId'=>1,
 	'articleId'=>[1,2,3,4,5,6,7,8],
 	'addTime >='=>'2018-01-01 00:00:00',
