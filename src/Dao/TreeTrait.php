@@ -127,10 +127,10 @@ trait TreeTrait
         } else if ($moveType == 'after') {
             return [$moveInfo[$this->tree_parentNodeField],  $moveToId, $moveInfo[$this->tree_nextNodeField]];
         } else if ($moveType == 'inner'){
-            $lastNodeId = table($this->tree_table)->select($this->tree_idField)->where([
+            $lastNodeId = table($this->tree_table)->where([
                 $this->tree_parentNodeField=>$moveToId,
                 $this->tree_nextNodeField=>0
-            ])->fetchColumn();
+            ])->fetchColumn($this->tree_idField);
             return empty($lastNodeId) ? [$moveToId, 0, 0] : [$moveToId, $lastNodeId, 0];
         }
         throw new \Exception('tree error');

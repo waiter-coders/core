@@ -1,6 +1,6 @@
 ### waiterphp 核心类库
 
-该项目提供了php的一些基础操作封装。可直接采用采用composer装载该类。
+该项目提供了php的一些基础操作封装。可直接采用composer装载该类。
 
 以下是类库的相关功能介绍。
 
@@ -55,29 +55,48 @@ set_env('database.default', [
 ]);
 
 // 获取多行数据
-table('article')->where([
-		'userId=>124,
-	])->orderBy('articleId desc')
-	->limit(10)
-	->offset(0)
-	->fetchAll();
+$data = table('article')->select('articleId,userId,title,hit as hit_num')->where([
+	'userId'=>1,
+	'articleId'=>[1,2,3,4,5,6,7,8],
+	'addTime >='=>'2018-01-01 00:00:00',
+	'title like'=>'%测试%'
+])->orderBy('articleId desc')
+->limit(10)
+->offset(0)->fetchAll();
 
 // 获取单行
-table('article')->where([
-	'article'=>1
-])->fetchRow();
+$data = table('article')->where(['userId'=>1])->fetchRow();
 
 // 写入数据
-table('article')->insert();
+$articleId = table('article')->insert([
+	'userId'=>2,
+	'title'=>'insert data'
+]);
+
+// 删除数据
+table('article')->where([
+	'articleId'=>$articleId
+])->delete();
 
 // 更新数据
-table('article')->where([])->update();
+table('article')->where([
+	'articleId'=>1
+])->update([
+	'hit'=>211
+]);
 
-// 统计行数
-table('article')->where([])->count();
+// 表达式更新
+ table('article')->where([
+	'articleId'=>1
+])->update([
+	'hit=hit+1'
+]);
+
+// 统计 
+table('article')->where(['userId'=>1])->count();
 
 // 分组
-table('article')->select('userId,count(*)')->where([])->groupBy('')->fetchAll();
+table('article')->select('userId,count(*)')->groupBy('userId')->fetchAll();
 ```
 #### 访问缓存
 

@@ -3,6 +3,7 @@ namespace Waiterphp\Core\DB;
 
 use Waiterphp\Core\DB\Parse\Where as DB_Where;
 use Waiterphp\Core\DB\Parse\Join as DB_Join;
+use Waiterphp\Core\DB\Parse\Update as DB_Update;
 
 class Query
 {
@@ -14,7 +15,8 @@ class Query
     public $groupBy = '';
     public $having ='';
     public $orderBy = '';
-    public $limit = '0, 10000'; // 默认限制，最大一百条
+    public $limit = 10000; // 默认限制，最大一万条
+    public $offset = 0;
 
     public function __construct($table, $connection)
     {
@@ -55,9 +57,15 @@ class Query
         return $this;
     }
 
-    public function limit($limit, $offset = null)
+    public function limit($limit)
     {
-        $this->limit = empty($offset) ? $limit : $offset . ',' . $limit;
+        $this->limit = (int) $limit;
+        return $this;
+    }
+
+    public function offset($offset)
+    {
+        $this->offset = (int) $offset;
         return $this;
     }
 
@@ -77,7 +85,7 @@ class Query
      */
     public function fetchRow()
     {
-        $this->limit = '0,1';
+        $this->limit = 1;
         list($sql, $params) = $this->generateQuery();
         return Database::connection($this->connection)->fetchRow($sql, $params);
     }
@@ -88,9 +96,10 @@ class Query
         return Database::connection($this->connection)->fetchAll($sql, $params);
     }
 
-    public function fetchColumn()
+    public function fetchColumn($column)
     {
-        $this->limit = '0,1';
+        $this->select($column);
+        $this->limit = 1;
         list($sql, $params) = $this->generateQuery();
         return Database::connection($this->connection)->fetchColumn($sql, $params);
     }
@@ -108,32 +117,27 @@ class Query
 
     public function count($column = '*')
     {
-        $this->select('count('.$column.') as num');
-        return $this->fetchColumn();
+        return $this->fetchColumn('count('.$column.') as num');
     }
 
     public function max($column)
     {
-        $this->select('max('.$column.') as num');
-        return $this->fetchColumn();
+        return $this->fetchColumn('max('.$column.') as num');
     }
 
     public function min($column)
     {
-        $this->select('min('.$column.') as num');
-        return $this->fetchColumn();
+        return $this->fetchColumn('min('.$column.') as num');
     }
 
     public function avg($column)
     {
-        $this->select('avg('.$column.') as num');
-        return $this->fetchColumn();
+        return $this->fetchColumn('avg('.$column.') as num');
     }
 
     public function sum($column)
     {
-        $this->select('sum('.$column.') as num');
-        return $this->fetchColumn();
+        return $this->fetchColumn('sum('.$column.') as num');
     }
 
     public function exists()
@@ -158,7 +162,7 @@ class Query
         if (!empty($this->orderBy)) {
             $sql .= ' order by ' . $this->orderBy;
         }
-        $sql .= ' limit ' . $this->limit;
+        $sql .= ' limit ' . $this->offset . ',' . $this->limit;
         return [$sql, $queryParams];
     }
 
@@ -201,7 +205,7 @@ class Query
     {
         assert_exception(!empty($this->where), 'please set where when update');
         list($where, $queryParams) = DB_Where::parse($this->where);
-        list($updateSql, $updateParams) = $this->parseUpdateData($data);
+        list($updateSql, $updateParams) = DB_Update::formatData($data);
         $sql = 'update ' . $this->mainTable . ' set ' . $updateSql . ' where ' . $where;
         $params = array_merge($updateParams, $queryParams);
         Database::connection($this->connection)->execute($sql, $params);
@@ -227,21 +231,5 @@ class Query
         $sql = sprintf('delete from %s where %s;', $this->mainTable, $where);
         Database::connection($this->connection)->execute($sql, $queryParams);
         return Database::connection($this->connection)->lastAffectRows();
-    }
-
-
-    private function parseUpdateData($data)
-    {
-        $sql = [];
-        $params = [];
-        foreach ($data as $key => $value) {
-            if (is_int($key)) {
-                $sql[] = $value;
-            } else {
-                $sql[] = $key . '=?';
-                $params[] = $value;
-            }
-        }
-        return [implode(',', $sql), $params];
     }
 }

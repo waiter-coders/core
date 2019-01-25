@@ -6,6 +6,11 @@ namespace Waiterphp\Core\DB\Parse;
  */
 class Where
 {
+    private static $actionMap = [
+        'gt'=>'>',
+        'lt'=>'<'
+    ];
+
     public static function parse(array $where)
     {
         $sql = [];
@@ -21,24 +26,30 @@ class Where
 
     private static function parseWhere($key, $value)
     {
-        if (is_numeric($key)) { // 无参数 
+        // 纯value方式
+        if (is_numeric($key)) {  
             return [$value, []];
         }
+        // key-value方式
         $value = !is_array($value) ? [$value] : $value; // 参数都转化为数组，方便参数间的合并
-        $where = self::parseItemWhere($key, $value);
-        assert_exception(substr_count($where, '?') == count($value), 'param num error:' . $where. json_encode($value));
-        return [$where, $value];
+        $valueCount = count($value);
+        $sql = self::parseWhereSql($key, $valueCount);
+        assert_exception(substr_count($sql, '?') == $valueCount, 'param num error:' . $sql . json_encode($value));
+        return [$sql, $value];
     }
 
-    private static function parseItemWhere($key, $value)
+    private static function parseWhereSql($key, $valueCount)
     {
-        if (strpos($key, '?')) { // 源码方式
+        // 源码方式
+        if (strpos($key, '?') !== false) { 
             return $key;
         }
+        // 字段、操作符方式
         list($column, $action) = explode(' ', $key . ' ', 2);
-        $action = self::formatAction($action, $value);
+        $action = self::formatAction($action, $valueCount);
+        // 对in、between做特殊处理
         if ($action == 'in' || $action == 'not in') {
-            $query = implode(',', array_fill(0, count($value), '?'));
+            $query = implode(',', array_fill(0, $valueCount, '?'));
             return sprintf('%s %s (%s)', $column, $action, $query);
         }
         if ($action == 'between') {
@@ -47,14 +58,17 @@ class Where
         return sprintf('%s %s ?', $column, $action);
     }
 
-    private static function formatAction($action, $value)
+    private static function formatAction($action, $valueCount)
     {
         $action = trim($action);
-        if ($action == '' && count($value) > 1) {
+        if ($action == '' && $valueCount > 1) {
             return 'in';
         }
         if ($action == '') {
             return '=';
+        }
+        if (isset(self::$actionMap[$action])) {
+            return self::$actionMap[$action];
         }
         return $action;
     }
