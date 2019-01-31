@@ -132,11 +132,6 @@ function filter($data)
     return \Waiterphp\Core\Filter\Filter::instance($data);
 }
 
-function build()
-{
-
-}
-
 function render($template, $params = [], $engine = 'smarty')
 {
 

@@ -40,4 +40,13 @@ class TestFunction extends TestCase
             $this->assertEquals($e->getCode(), 502);
         }
     }
+
+    public function test_class_make()
+    {
+        factory('waiterphp.core.db.database');
+        instance('waiterphp.core.db.database');
+
+        $configs = load_configs(['web.php'], [__DIR__ . '/config']);
+        action('waiterphp.core.db.database.register', [$configs['database']['default']]);
+    }
 }
