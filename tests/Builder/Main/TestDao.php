@@ -18,11 +18,11 @@ class TestDao extends TestCase
 
     public function test_build()
     {
-        $daoFile = '/tmp/Model/Article.php';
+        $daoFile = '/tmp/Model/ExamChoice.php';
         is_file($daoFile) && unlink($daoFile);
 
         $this->builder->build([
-            'table'=>'article'
+            'table'=>'exam_choice'
         ]);
         $this->assertTrue(is_file($daoFile));
         $content = file_get_contents($daoFile);

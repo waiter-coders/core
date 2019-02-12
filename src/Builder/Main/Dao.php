@@ -18,7 +18,7 @@ class Dao extends Base
         // 尝试生成文件
         $daoMaker = $this->generateMaker();
         $template = __DIR__ . '/template/Dao.php';
-        $buildFile = $this->basePath . '/Model/' . ucfirst($params['table']) . '.php';        
+        $buildFile = $this->basePath . '/Model/' . ucfirst($params['model']) . '.php';        
         $daoMaker->template($template)->params($tableStruct)->buildToFile($buildFile);
     }
 
@@ -35,17 +35,18 @@ class Dao extends Base
         // 标准化数据库
         $format['database'] = 'default';
 
+        $format['model'] = _to_uper($format['table']);
+
         return $format;
     }
 
     private function fetchTableStruct($params)
     {
-        $table = $params['table'];
-        $struct = table($table)->struct();
+        $struct = table($params['table'])->struct();
 
         $response = [
-            'Model'=>ucfirst($params['table']),
-            'table'=>$table,
+            'Model'=>$params['model'],
+            'table'=>$params['table'],
             'primaryKey'=>'',
             'fields'=>[]
         ];

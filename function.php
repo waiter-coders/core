@@ -136,3 +136,13 @@ function render($template, $params = [], $engine = 'smarty')
 {
 
 }
+
+function _to_uper($_name)
+{
+    $names = explode('_', $_name);
+    $response = [];
+    foreach ($names as $name) {
+        $response[] = ucfirst($name);
+    }
+    return implode('', $response);
+}
