@@ -1,16 +1,14 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Administrator
- * Date: 2018/6/11
- * Time: 14:35
- */
 
 namespace Waiterphp\Core\Console;
 
 
 class Shell
 {
+    private static $yesOrNo = [
+        'y'=>true,'yes'=>true,'n'=>false, 'no'=>false
+    ];
+
     public static function getArg($key)
     {
         $arg = getopt($key.':');
@@ -30,5 +28,18 @@ class Shell
             exit();
         }
         return $input;
+    }
+
+    public static function askUser($question)
+    {
+        $input = self::getInput($question . ' (y/n)');
+        $input = strtolower($input);
+        
+        if (isset(self::$yesOrNo[$input])) {
+            return self::$yesOrNo[$input];
+        } else {
+            echo '输入错误' . "\r\n";
+            return $this->askUser($question);
+        }
     }
 }

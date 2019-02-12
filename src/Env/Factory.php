@@ -29,4 +29,10 @@ class Factory
     {
         return call_user_func($action, $params);
     }
+
+    public static function hasClass($class)
+    {
+        $class = (strpos($class, '.') > 0) ? Dot::dotToClass($class) : $class;
+        return class_exists($class);
+    }
 }

@@ -61,10 +61,9 @@ class File
         return $files;
     }
 
-    static function rm($file)
+    static function remove($file)
     {
-        $status = unlink($file);
-        assert_exception($status == false, 'delete fiel error:'.$file);
+        return unlink($file);
     }
 
     public static function relativePath($sourcePath, $targetPath)
