@@ -232,4 +232,16 @@ class Query
         Database::connection($this->connection)->execute($sql, $queryParams);
         return Database::connection($this->connection)->lastAffectRows();
     }
+
+    public function struct()
+    {
+        $sql = 'SELECT COLUMN_NAME as field, DATA_TYPE as type, COLUMN_KEY as keyType, COLUMN_COMMENT as comment
+        FROM  information_schema.COLUMNS 
+        WHERE  TABLE_NAME =  \'%s\'
+        AND TABLE_SCHEMA =  \'%s\'
+        ORDER BY ORDINAL_POSITION';
+        $database = Database::configValue($this->connection, 'database');
+        $sql = sprintf($sql, $this->mainTable, $database);
+        return Database::connection($this->connection)->fetchAll($sql, []);
+    }
 }

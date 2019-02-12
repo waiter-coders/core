@@ -4,12 +4,6 @@ namespace Waiterphp\Core\Tests;
 
 class TestDB extends TestCase
 {
-    public function SetUp()
-    {
-        set_env(load_configs(['web.php'], [__DIR__ . '/config', __DIR__ . '/../../config']));
-        parent::SetUp();
-    }
-
     public function test_fetchData()
     {
         $data = table('article')->select('articleId,userId,title,hit as hit_num')

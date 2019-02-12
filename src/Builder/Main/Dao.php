@@ -12,19 +12,14 @@ class Dao extends Base
         // 检查数据库配置
         $params = $this->formatParams($params);
 
+        // 获取数据表的结构信息
+        $tableStruct = $this->fetchTableStruct($params);
+
         // 尝试生成文件
         $daoMaker = $this->generateMaker();
         $template = __DIR__ . '/template/Dao.php';
         $buildFile = $this->basePath . '/Model/' . ucfirst($params['table']) . '.php';        
-        $daoMaker->template($template)->params([
-            'Model'=>'Article',
-            'table'=>'article',
-            'primaryKey'=>'articleId',
-            'fields'=>[
-                ['field'=>'title', 'type'=>'string', 'name'=>'标题'],
-                ['field'=>'addTime', 'type'=>'datetime', 'name'=>'添加时间']
-            ]
-        ])->buildToFile($buildFile);
+        $daoMaker->template($template)->params($tableStruct)->buildToFile($buildFile);
     }
 
     private function formatParams($params)
@@ -41,5 +36,44 @@ class Dao extends Base
         $format['database'] = 'default';
 
         return $format;
+    }
+
+    private function fetchTableStruct($params)
+    {
+        $table = $params['table'];
+        $struct = table($table)->struct();
+
+        $response = [
+            'Model'=>ucfirst($params['table']),
+            'table'=>$table,
+            'primaryKey'=>'',
+            'fields'=>[]
+        ];
+
+        foreach ($struct as $field) {
+            if ($field['keyType'] == 'PRI') {
+                $response['primaryKey'] = $field['field'];
+                continue;
+            }
+            $response['fields'][] = [
+                'field'=>$field['field'],
+                'type'=>$this->formatDaoType($field['type']),
+                'name'=>$field['comment']
+            ];
+        }
+        
+        return $response;
+    }
+
+    private function formatDaoType($dataType)
+    {
+        $dataType = strtolower($dataType);
+        if ($dataType == 'int' || $dataType == 'tinyint') {
+            return 'number';
+        }
+        if ($dataType == 'timestamp' || $dataType == 'datetime') {
+            return 'datetime';
+        }
+        return 'string';
     }
 }

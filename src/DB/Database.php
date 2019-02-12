@@ -65,6 +65,11 @@ class Database
         return new Query($table, $name);
     }
 
+    public static function configValue($name, $key)
+    {
+        return self::$config[$name]['write'][0][$key];
+    }
+
     // 绑定事务区域
     public static function transaction(callable $method, $name = null)
     {
