@@ -137,7 +137,7 @@ function render($template, $params = [], $engine = 'smarty')
 
 }
 
-function _to_uper($_name)
+function underline_to_hump($_name)
 {
     $names = explode('_', $_name);
     $response = [];
