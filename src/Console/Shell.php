@@ -20,14 +20,15 @@ class Shell
         return (PHP_SAPI == 'cli');
     }
 
-    public static function getInput($message)
+    public static function output($message)
     {
-        echo $message . "\r\n";
-        $input = trim(fgets(STDIN));
-        if ($input == 'exit') {
-            exit();
-        }
-        return $input;
+        fwrite(STDOUT, $message . "\r\n");
+    }
+
+    public static function getInput($question)
+    {
+        self::output($question);
+        return trim(fgets(STDIN));
     }
 
     public static function askUser($question)
@@ -38,8 +39,8 @@ class Shell
         if (isset(self::$yesOrNo[$input])) {
             return self::$yesOrNo[$input];
         } else {
-            echo '输入错误' . "\r\n";
-            return $this->askUser($question);
+            self::output('输入错误');
+            return self::askUser($question);
         }
     }
 }
