@@ -6,7 +6,7 @@ class TestFunction extends TestCase
 {
     public function test_load_configs()
     {
-        $configs = load_configs(['web.php'], [__DIR__ . '/config']);
+        $configs = load_configs(__DIR__ . '/config');
         $this->assertTrue(isset($configs['database']));
     }
 
@@ -45,8 +45,7 @@ class TestFunction extends TestCase
     {
         factory('waiterphp.core.db.database');
         instance('waiterphp.core.db.database');
-
-        $configs = load_configs(['web.php'], [__DIR__ . '/config']);
+        $configs = load_configs([__DIR__ . '/config', __DIR__ . '/../../config']);
         action('waiterphp.core.db.database.register', [$configs['database']['default']]);
     }
 }

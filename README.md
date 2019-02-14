@@ -7,7 +7,7 @@
 #### 装载配置
 可通过以下方式获取配置文件中的数据。
 ```php
-$configs = load_configs($fileNames, $basePaths);
+$configs = load_configs($fileNames);
 ```
 函数可以从basePaths设置的多个路径里面，加载fileNames里面设置的多个文件中的内容，覆盖顺序为后者覆盖前者。
 

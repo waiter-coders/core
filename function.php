@@ -30,19 +30,23 @@ function array_deep_cover($baseArray, $mergeArray)
 }
 
 // 从文件在加载配置信息的快捷函数
-function load_configs($fileNames, $basePaths)
+function load_configs($fileNames, $fileNameToKey = true)
 {
     $config = [];
     $fileNames = is_string($fileNames) ? [$fileNames] : $fileNames;
-    $basePaths = is_string($basePaths) ? [$basePaths] : $basePaths;
-    foreach ($basePaths as $basePath) {
-        foreach ($fileNames as $fileName) {
-            $filePath = $basePath . DIRECTORY_SEPARATOR . $fileName;
-            if (is_file($filePath)) {
-                $targetConfig = require $filePath;
-                assert_exception(is_array($targetConfig), 'config not return array:' . $filePath);
-                $config = array_deep_cover($config, $targetConfig);
+    foreach ($fileNames as $fileName) {
+        if (is_dir($fileName)) {
+            $subFileNames = \Waiterphp\Core\File\File::getFiles($fileName);
+            $config = array_deep_cover($config, load_configs($subFileNames));
+        } else if (is_file($fileName)) {
+            $targetConfig = require $fileName;
+            if ($fileNameToKey) {
+                $baseName = substr(basename($fileName), 0, -4);
+                $targetConfig = [$baseName=>$targetConfig];
             }
+            $config = array_deep_cover($config, $targetConfig);
+        } else {
+            throw new Exception('params not dir or file:' . $fileName);
         }
     }
     return $config;
