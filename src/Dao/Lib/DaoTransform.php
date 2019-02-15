@@ -2,7 +2,7 @@
 
 namespace Waiterphp\Core\Dao\Lib;
 
-use Waiterphp\Core\Lib\DB as DB;
+use Waiterphp\Core\DB\Database as DB;
 
 class DaoTransform
 {

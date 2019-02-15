@@ -1,5 +1,5 @@
 <?php
-namespace Waiterphp\Core\View;
+namespace Waiterphp\Core\Template;
 
 /*
  * *【网页】***************************
@@ -13,7 +13,7 @@ namespace Waiterphp\Core\View;
  *
  */
 
-class View
+class Template
 {
     private static $config = null;
     private static $params = [];

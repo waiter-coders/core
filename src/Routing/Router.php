@@ -12,6 +12,7 @@ class Router
     public function set($routeTable)
     {
         $this->routeTable = $routeTable;
+        return $this;
     }
 
     public function route($signal, $params = [])
@@ -30,7 +31,7 @@ class Router
     {
         foreach ($routes as $route) {
             assert_exception(isset($route[0]) || isset($route['url']), 'route not set');
-            $pattern = isset($route[0]) ? $route[0] : $route['url'];
+            $pattern = isset($route[0]) ? $route[0] : $route['url']; 
             if (preg_match($this->formatPattern($pattern), $signal, $matches)) {
                 return $this->generateCmd($route[1], $matches);
             }
@@ -55,7 +56,7 @@ class Router
 
     private function routeTo($action, $params = [])
     {
-        return method($action, $params);
+        return action($action, $params);
     }
 
     private function parseSignal($signal)

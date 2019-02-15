@@ -83,7 +83,7 @@ class DaoConfig
         $type = array_shift($args);        
         assert_exception(!isset($this->fields[$field]), 'field all ready set:'.$field);
         assert_exception(isset(self::$baseType[$type]), 'field type not exist:' . $type);
-        $this->fields[$field] = ['field'=>$field, 'type'=>$type];
+        $this->fields[$field] = ['field'=>$field, 'type'=>$type, 'name'=>$field];
         $this->fields[$field] = array_merge($this->fields[$field], $this->analyzeFieldArgs($type, $args));
         if (!empty($trueField)) {
             $this->fields[$field]['trueField'] = $trueField;
@@ -155,7 +155,10 @@ class DaoConfig
         $params = [];
         while (!empty($args)) {
             $arg = array_shift($args);
-
+            // 空字符串跳过
+            if (empty($arg)) {
+                continue;
+            }
             // 字符串类型
             if (is_string($arg)) {
                 // http为baseUrl(临时添加)
@@ -200,7 +203,7 @@ class DaoConfig
                 continue;
             }
 
-            throw new \Exception('no look:' . json_encode($arg));
+            throw new \Exception('dao field args error:' . json_encode($arg));
         }
         return $params;
     }
