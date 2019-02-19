@@ -56,7 +56,7 @@ class Router
 
     private function routeTo($action, $params = [])
     {
-        return action($action, $params);
+        return action($action, $params, false, $params[0]);
     }
 
     private function parseSignal($signal)

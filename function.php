@@ -65,10 +65,10 @@ function instance($class, $params = [])
 }
 
 // 调用类方法的快捷函数
-function action($action, $params, $isInstance = true)
+function action($action, $params, $isInstance = true, $classParams = [])
 {
     list($class, $method) = \Waiterphp\Core\Dot\Dot::dotToMethod($action);
-    $object = $isInstance ? instance($class) : factory($class);
+    $object = $isInstance ? instance($class, $classParams) : factory($class, $classParams);
     return call_user_func_array([$object, $method], $params);
 }
 

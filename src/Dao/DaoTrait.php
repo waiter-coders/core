@@ -39,6 +39,12 @@ trait DaoTrait
         return array_diff_key($this->daoConfig->fields, $trueFields);
     }
 
+    public function getField($field)
+    {
+        assert_exception(isset($this->daoConfig->fields[$field]), 'not has field:' . $field);
+        return $this->daoConfig->fields[$field];
+    }
+
     // 获取表主键
     public function primaryKey()
     {
