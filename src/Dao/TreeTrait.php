@@ -78,7 +78,7 @@ trait TreeTrait
     public function addNode($label, $moveToId = 0, $moveType = 'after', $extends = [])
     {
         $_this = $this;
-        $nodeId = \Waiterphp\Core\Lib\DB::transaction(function() use ($_this, $label, $moveToId, $moveType, $extends) {
+        $nodeId = \Waiterphp\Core\DB\Database::transaction(function() use ($_this, $label, $moveToId, $moveType, $extends) {
             $nodeId = table($_this->tree_table)->insert(array_merge($extends, [$this->tree_labelField=>$label]));
             if ($moveToId != 0) {
                 $_this->pushNode($nodeId, $moveToId, $moveType);
@@ -100,9 +100,9 @@ trait TreeTrait
     public function deleteNode($nodeId)
     {
         $_this = $this;
-        \Waiterphp\Core\Lib\DB::transaction(function() use ($_this, $nodeId) {
+        \Waiterphp\Core\DB\Database::transaction(function() use ($_this, $nodeId) {
             $_this->popNode($nodeId);
-            table($_this->tree_table)->where([$this->tree_idField=>$nodeI])->delete();
+            table($_this->tree_table)->where([$this->tree_idField=>$nodeId])->delete();
             $_this->clearCache();
         });
         return true;
@@ -111,7 +111,7 @@ trait TreeTrait
     public function changeNodePosition($nodeId, $moveToId, $moveType)
     {
         $_this = $this;
-        \Waiterphp\Core\Lib\DB::transaction(function() use ($_this, $nodeId, $moveToId, $moveType) {
+        \Waiterphp\Core\DB\Database::transaction(function() use ($_this, $nodeId, $moveToId, $moveType) {
             $_this->popNode($nodeId);
             $_this->pushNode($nodeId, $moveToId, $moveType);
             $_this->clearCache();
