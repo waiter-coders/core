@@ -45,8 +45,6 @@ function load_configs($fileNames, $fileNameToKey = true)
                 $targetConfig = [$baseName=>$targetConfig];
             }
             $config = array_deep_cover($config, $targetConfig);
-        } else {
-            throw new Exception('params not dir or file:' . $fileName);
         }
     }
     return $config;
