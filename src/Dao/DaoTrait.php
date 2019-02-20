@@ -180,7 +180,7 @@ trait DaoTrait
         $where = $this->daoTransform->getQueryWhere($query['where']);
         $queryTables = $this->daoTransform->getQueryTables($select, $where);
         $orderBy = $this->daoTransform->getQueryOrder($query['orderBy']);
-        return $queryTables->select($select)->where($where)->orderBy($orderBy)->limit($query['limit'], $query['offset']);
+        return $queryTables->select($select)->where($where)->orderBy($orderBy)->limit($query['limit'])->offset($query['offset']);
     }
 
     /*****************************
