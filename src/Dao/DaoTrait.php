@@ -161,13 +161,17 @@ trait DaoTrait
 
     public function count()
     {
-        return $this->currentQuery()->count();
+        return (int) $this->currentQuery()->count();
     }
 
     public function getList()
     {
+        $response = [];
         $data = $this->currentQuery()->fetchAll();
-        return $data;
+        foreach ($data as $row) {
+            $response[] = $this->formatRow($row);
+        }
+        return $response;
     }
 
     public function currentQuery()
@@ -306,6 +310,21 @@ trait DaoTrait
             $dataByTable[$table][$field] = $value;
         }
         return $dataByTable;
+    }
+
+    private function formatRow($row)
+    {
+        $newRow = [];
+        foreach ($row as $field=>$value) {
+            switch ($this->daoConfig->fields[$field]['type']) {
+                case 'number':
+                    $newRow[$field] = (int) $value;
+                    break;
+                default:
+                $newRow[$field] = $value;
+            }
+        }
+        return $newRow;
     }
 }
 
