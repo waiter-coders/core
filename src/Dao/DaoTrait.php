@@ -93,7 +93,7 @@ trait DaoTrait
 
     public function orderBy($orderBy)
     {
-        $this->query['$orderBy'] = $orderBy;
+        $this->query['orderBy'] = $orderBy;
         return $this;
     }
 
