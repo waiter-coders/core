@@ -13,7 +13,7 @@ trait DaoTrait
     private $pipelines; // 数据处理通道
     private $tableFields = [];
     private $query = [];
-    private $defaultQuery = ['fields'=>'main', 'where'=> [], 'limit'=>'12', 'offset'=>0, 'orderBy'=>''];
+    private $defaultQuery = ['fields'=>'main', 'where'=> [], 'limit'=>'10000', 'offset'=>0, 'orderBy'=>''];
 
     public function __construct()
     {
@@ -191,13 +191,23 @@ trait DaoTrait
      * 数据操作方法
      *****************************/
 
-    // 更新信息
+    // 更新信息??暂不可用
     public function update($update)
     {
+        $query = array_merge($this->defaultQuery, $this->query); $this->query = [];
+        $where = $this->daoTransform->getQueryWhere($query['where']);
 
-        $update = DaoPipeline::iteration($update, $this->daoConfig, 'toDb');
-        $query = table($this->daoConfig->table, $this->daoConfig->database);
-        return $query->update($update);
+        $update = $this->daoFilter->input($update);
+        $update = $this->groupByTables($update);
+        foreach ($update as $table=>$data) {
+            $idField = $this->daoConfig->primaryKey;
+            if (isset($this->daoConfig->joinTables[$table])) { // join表转化为真表
+                $idField = $this->daoConfig->joinTables[$table]['joinField'];
+                $table = $this->daoConfig->joinTables[$table]['table'];
+            }
+            table($table)->where([$idField=>$id])->update($data);
+        }
+        return true;
     }
 
     // 根据主键id更新信息

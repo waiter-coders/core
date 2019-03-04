@@ -1,7 +1,7 @@
 <?php
 namespace Waiterphp\Core\Dao;
 
-trait TreeTrait
+trait TreeTrait // 查询为采用dao,直接table，有问题
 {
     use DaoTrait;
 
@@ -11,9 +11,10 @@ trait TreeTrait
         $this->tree_table = $this->daoConfig->table;
     }
 
-    protected $tree_table = '';
+    protected $tree_table = '';    
     protected $tree_idField = '';
     protected $tree_labelField = '';
+    protected $tree_topicField = '';
     protected $tree_parentNodeField = '';
     protected $tree_preNodeField = '';
     protected $tree_nextNodeField = '';
@@ -23,15 +24,17 @@ trait TreeTrait
 
     abstract protected function setTreeConfig();
 
-    protected function initTreeFields($nodeId = 'nodeId', $label = 'label', $parentId = 'parentId', $preNode = 'preNodeId', $nextNode = 'nextNodeId')
+    protected function initTreeFields($nodeId = 'nodeId', $label = 'label', $topicId = 'topicId', $parentId = 'parentId', $preNode = 'preNodeId', $nextNode = 'nextNodeId')
     {
         $this->daoConfig->setPrimaryKey($nodeId);
         $this->daoConfig->setField($label, 'string', '名称');
+        $this->daoConfig->setField($topicId, 'number', '所属主题');
         $this->daoConfig->setField($parentId, 'number', '父节点');
         $this->daoConfig->setField($preNode, 'number', '左节点');
         $this->daoConfig->setField($nextNode, 'number', '右节点');
         $this->tree_idField = $nodeId;
         $this->tree_labelField = $label;
+        $this->tree_topicField = $topicId;
         $this->tree_parentNodeField = $parentId;
         $this->tree_preNodeField = $preNode;
         $this->tree_nextNodeField = $nextNode;
@@ -42,84 +45,97 @@ trait TreeTrait
         return [
             'nodeId'=>$this->tree_idField,
             'label'=>$this->tree_labelField,
+            'topicId'=>$this->tree_topicField,
             'parentId'=>$this->tree_parentNodeField,
             'preNodeId'=>$this->tree_preNodeField,
             'nextNodeId'=>$this->tree_nextNodeField
         ];
     }
 
-    public function getTree($nodeId = 0)
+    public function getKeyName($key)
     {
-        $rootTree = $this->rootTree();
+        $treeKeys = $this->getTreeKeys();
+        return $treeKeys[$key];
+    }
+
+    public function getTree($topicId, $nodeId = 0)
+    {
+        $rootTree = $this->rootTree($topicId);
         return $nodeId == 0 ? $rootTree : $this->findNode($rootTree, $nodeId);
     }
 
-    public function getTrace($nodeId)
+    public function getTrace($topicId, $nodeId)
     {
-        $rootTree = $this->rootTree();
+        $rootTree = $this->rootTree($topicId);
         return $this->findNodeTrace($rootTree, $nodeId);
     }
 
-    public function getNodes($nodeId)
+    public function getNodes($topicId, $nodeId)
     {
-        $nodes = table($this->tree_table)->where([$this->tree_parentNodeField=>$nodeId])->fetchAll();
+        $nodes = $this->where([
+            $this->tree_topicField=>$topicId,
+            $this->tree_parentNodeField=>$nodeId
+        ])->getList();
         return $nodes;
     }
 
-    public function treeIds($nodeId) {
+    public function treeIds($topicId, $nodeId) {
         $treeIds[] = $nodeId;
-        $tree = $this->getTree($nodeId);
+        $tree = $this->getTree($topicId, $nodeId);
         if (isset($tree['children'])) {
             $treeIds = array_merge($treeIds, $this->extractNodeIds($tree['children']));
         }
         return $treeIds;
     }
 
-    public function addNode($label, $moveToId = 0, $moveType = 'after', $extends = [])
+    public function addNode($topicId, $label, $moveToId = 0, $moveType = 'after', $extends = [])
     {
         $_this = $this;
-        $nodeId = \Waiterphp\Core\DB\Database::transaction(function() use ($_this, $label, $moveToId, $moveType, $extends) {
-            $nodeId = table($_this->tree_table)->insert(array_merge($extends, [$this->tree_labelField=>$label]));
+        $nodeId = \Waiterphp\Core\DB\Database::transaction(function() use ($_this, $topicId, $label, $moveToId, $moveType, $extends) {
+            $nodeId = $_this->insert(array_merge($extends, [
+                $this->tree_topicField=>$topicId,
+                $this->tree_labelField=>$label
+            ]));
             if ($moveToId != 0) {
-                $_this->pushNode($nodeId, $moveToId, $moveType);
+                $_this->pushNode($topicId, $nodeId, $moveToId, $moveType);
             }
-            $_this->clearCache();
+            $_this->clearCache($topicId);
             return $nodeId;
         });
         return $nodeId;
     }
 
-    public function changeNodeLabel($nodeId, $label)
+    public function changeNodeLabel($topicId, $nodeId, $label)
     {
-        $this->clearCache();
-        return table($this->tree_table)->where([$this->tree_idField=>$nodeId])->update([
+        $this->clearCache($topicId);
+        return $this->updateById($nodeId, [
             $this->tree_labelField=>$label,
         ]);
     }
 
-    public function deleteNode($nodeId)
+    public function deleteNode($topicId, $nodeId)
     {
         $_this = $this;
         \Waiterphp\Core\DB\Database::transaction(function() use ($_this, $nodeId) {
-            $_this->popNode($nodeId);
-            table($_this->tree_table)->where([$this->tree_idField=>$nodeId])->delete();
-            $_this->clearCache();
+            $_this->popNode($topicId, $nodeId);
+            $_this->deleteById($nodeId);
+            $_this->clearCache($topicId);
         });
         return true;
     }
 
-    public function changeNodePosition($nodeId, $moveToId, $moveType)
+    public function changeNodePosition($topicId, $nodeId, $moveToId, $moveType)
     {
         $_this = $this;
-        \Waiterphp\Core\DB\Database::transaction(function() use ($_this, $nodeId, $moveToId, $moveType) {
-            $_this->popNode($nodeId);
-            $_this->pushNode($nodeId, $moveToId, $moveType);
-            $_this->clearCache();
+        \Waiterphp\Core\DB\Database::transaction(function() use ($_this, $topicId, $nodeId, $moveToId, $moveType) {
+            $_this->popNode($topicId, $nodeId);
+            $_this->pushNode($topicId, $nodeId, $moveToId, $moveType);
+            $_this->clearCache($topicId);
         });
         return true;
     }
 
-    private function moveToIds($moveToId, $moveType)
+    private function moveToIds($topicId, $moveToId, $moveType)
     {
         $moveInfo = $this->infoById($moveToId);
         if ($moveType == 'before') {
@@ -127,36 +143,45 @@ trait TreeTrait
         } else if ($moveType == 'after') {
             return [$moveInfo[$this->tree_parentNodeField],  $moveToId, $moveInfo[$this->tree_nextNodeField]];
         } else if ($moveType == 'inner'){
-            $lastNodeId = table($this->tree_table)->where([
+            $lastNodes = $this->where([
+                $this->tree_topicField=>$topicId,
                 $this->tree_parentNodeField=>$moveToId,
                 $this->tree_nextNodeField=>0
-            ])->fetchColumn($this->tree_idField);
+            ])->getList();
+            $lastNodeId = $lastNodes[0][$this->tree_idField];
             return empty($lastNodeId) ? [$moveToId, 0, 0] : [$moveToId, $lastNodeId, 0];
         }
         throw new \Exception('tree error');
     }
 
-    private function pushNode($nodeId, $moveToId, $moveType)
+    private function pushNode($topicId, $nodeId, $moveToId, $moveType)
     {
-        list($parentId, $preNodeId, $nextNodeId) = $this->moveToIds($moveToId, $moveType);
+        list($parentId, $preNodeId, $nextNodeId) = $this->moveToIds($topicId, $moveToId, $moveType);
         if (!empty($preNodeId)) {
-            table($this->tree_table)->where([$this->tree_idField=>$preNodeId])->update([$this->tree_nextNodeField=>$nodeId]);
+            $this->updateById($preNodeId, [$this->tree_nextNodeField=>$nodeId]);
         }
         if (!empty($nextNodeId)) {
-            table($this->tree_table)->where([$this->tree_idField=>$nextNodeId])->update([$this->tree_preNodeField=>$nodeId]);
+            $this->updateById($nextNodeId, [$this->tree_preNodeField=>$nodeId]);
         }
-        table($this->tree_table)->where([$this->tree_idField=>$nodeId])->update([
-            $this->tree_parentNodeField=>$parentId, $this->tree_preNodeField =>$preNodeId, $this->tree_nextNodeField=>$nextNodeId]);
+        $this->updateById($nodeId, [
+            $this->tree_parentNodeField=>$parentId,
+            $this->tree_preNodeField =>$preNodeId,
+            $this->tree_nextNodeField=>$nextNodeId
+        ]);
     }
 
-    private function popNode($nodeId)
+    private function popNode($topicId, $nodeId)
     {
-        $info = table($this->tree_table)->where([$this->tree_idField=>$nodeId])->fetchRow();
+        $info = $this->infoById($nodeId);
         if ($info[$this->tree_preNodeField] > 0) {
-            table($this->tree_table)->where([$this->tree_idField=>$info[$this->tree_preNodeField]])->update([$this->tree_nextNodeField=>$info[$this->tree_nextNodeField]]);
+            $this->updateById($info[$this->tree_preNodeField], [
+                $this->tree_nextNodeField=>$info[$this->tree_nextNodeField]
+            ]);
         }
         if ($info[$this->tree_nextNodeField] > 0) {
-            table($this->tree_table)->where([$this->tree_idField=>$info[$this->tree_nextNodeField]])->update([$this->tree_preNodeField=>$info[$this->tree_preNodeField]]);
+            $this->updateById($info[$this->tree_nextNodeField], [
+                $this->tree_preNodeField=>$info[$this->tree_preNodeField]
+            ]);
         }
 //        table($this->tree_table)->where([$this->tree_idField=>$nodeId))->update([$this->tree_parentNodeField=>0, $this->tree_preNodeField=>0, $this->tree_nextNodeField=>0));
     }
@@ -206,13 +231,15 @@ trait TreeTrait
         return $ids;
     }
 
-    private function rootTree()
+    private function rootTree($topicId)
     {
-        if (empty($this->tree)) {
-            $nodes = table($this->tree_table)->fetchAll();
-            $this->tree = $this->makeTree($nodes);
+        if (!isset($this->tree[$topicId])) {
+            $nodes = $this->where([
+                $this->tree_topicField=>$topicId
+            ])->getList();
+            $this->tree[$topicId] = $this->makeTree($nodes);
         }
-        return $this->tree;
+        return $this->tree[$topicId];
     }
 
     private function makeTree($nodes, $parentId = 0)
@@ -220,7 +247,7 @@ trait TreeTrait
         // 组装数据
         $treeMap = [];
         $treeOrders = [];
-        foreach ($nodes as $node) {
+        foreach ($nodes as $node) {            
             if ($node[$this->tree_parentNodeField] == $parentId) {
                 $treeNode = [
                     $this->tree_idField=>$node[$this->tree_idField],
@@ -253,8 +280,8 @@ trait TreeTrait
         return $orderedTree;
     }
 
-    private function clearCache()
+    private function clearCache($topicId)
     {
-        $this->tree = [];
+        unset($this->tree[$topicId]);
     }
 }
