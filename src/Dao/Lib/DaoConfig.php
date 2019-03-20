@@ -27,6 +27,7 @@ class DaoConfig
     //
     private static $baseType = [
         'number'=>['action'=>'regex', 'errorMessage'=>'必须为数字', 'regex'=>'\d+'], // 对应tinyint int 等
+		'decimal'=>['action'=>'regex', 'errorMessage'=>'必须为数字', 'regex'=>'\d+.\d+'], // 对应tinyint int 等
         'string'=>['action'=>'regex', 'errorMessage'=>'长度应该在@min～@max之间!', 'regex'=>'[\w|\W]{@min,@max}', 'min'=>1, 'max'=>255], // varchar char
         'text'=>['type'=>'text', 'filter'=>'string', 'params'=>'html'], // 没有html标签，
         'html'=>['action'=>'regex', 'errorMessage'=>'不能为空！', 'regex'=>'[\w|\W]{1,}'], //
