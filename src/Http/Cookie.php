@@ -1,6 +1,6 @@
 <?php
 
-namespace Waiterphp\Core\Http;
+namespace waiterphp\core\Http;
 
 class Cookie
 {

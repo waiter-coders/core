@@ -131,7 +131,7 @@ render('user/login.html', ['username'=>'测试'], 'tools.myView');
 
 #### dao的使用
 ```
-use Waiterphp\Core\Dao\DaoTrait;
+use waiterphp\core\database\DaoTrait;
 
 class User
 {
@@ -142,7 +142,7 @@ class User
 #### 过滤器的使用
 可以利用trait快速构建一个过滤器
 ```php
-use Waiterphp\Core\Filter\FilterTrait;
+use waiterphp\core\Filter\FilterTrait;
 
 class HttpRequest
 {

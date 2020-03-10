@@ -1,7 +1,5 @@
 <?php
-
-namespace Waiterphp\Core\Tests;
-
+namespace waiterphp\core\tests;
 
 abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
