@@ -1,6 +1,6 @@
 <?php
 namespace waiterphp\core\database\query\parse;
-use waiterphp\core\database\Query as Query;
+use waiterphp\core\database\query\Query as Query;
 
 /*
  * Join链接对象，用于提供Join方法

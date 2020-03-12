@@ -56,7 +56,9 @@ class Router
 
     private function routeTo($action, $params = [])
     {
-        return action($action, $params, false, $params[0]);
+        list($class, $method) = dot_method($action);
+        $object = instance($class);
+        return call_user_func_array([$object, $method], $params);
     }
 
     private function parseSignal($signal)

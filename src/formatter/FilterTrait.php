@@ -1,5 +1,5 @@
 <?php
-namespace waiterphp\core\Filter;
+namespace waiterphp\core\formatter;
 trait FilterTrait
 {
     private $data = [];

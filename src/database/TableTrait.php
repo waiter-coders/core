@@ -373,9 +373,13 @@ trait TableTrait
     {
         $newRow = [];
         foreach ($row as $field=>$value) {
+            
             switch ($this->config->fields[$field]['type']) {
                 case 'number':
                     $newRow[$field] = (int) $value;
+                    break;
+                case 'json':
+                    $newRow[$field] = json_decode($value, true);
                     break;
                 default:
                 $newRow[$field] = $value;

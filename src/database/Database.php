@@ -2,7 +2,7 @@
 namespace waiterphp\core\database;
 
 use waiterphp\core\database\connection\Pdo;
-use waiterphp\core\database\Query\Query;
+use waiterphp\core\database\query\Query;
 /*
  * 查询构建器
  *
@@ -72,7 +72,6 @@ class Database
             }
             return true;
         }
-
         // 单数据库配置
         assert_exception(isset($config['host']) && isset($config['database']), 'no host or database set');
         self::$config[$name] = self::formatConfig($config);

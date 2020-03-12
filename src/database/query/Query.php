@@ -182,7 +182,7 @@ class Query
         $sql = sprintf('select %s from %s', $this->columns, $this->table);
         // 连接表
         if ($this->join != '') {
-            $sql .= ' ' + $this->join;
+            $sql .= ' ' . $this->join;
         }
         // 条件
         list($where, $params) = Where::parse($this->where);
