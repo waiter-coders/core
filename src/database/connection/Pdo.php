@@ -13,8 +13,8 @@ class Pdo
     // 查询状态
     private $sql = '';
     private $params = [];
-    private $insertId = 0;
-    private $affectRows = 0;
+    private $lastInsertId = 0;
+    private $rowCount = 0;
 
     public function __construct($config)
     {
@@ -41,9 +41,10 @@ class Pdo
 
     private function fetchData($sql, $params = [], $fetchType)
     {
-        try {
-            $this->saveSql($sql, $params);
-            $statement = $this->connection()->prepare($sql);
+        $this->saveSql($sql, $params);
+        $connection = $this->connection();
+        try {            
+            $statement = $connection->prepare($sql);
             $statement->setFetchMode(\PDO::FETCH_ASSOC);
             $statement->execute($params);
             return call_user_func([$statement, $fetchType]);
@@ -57,27 +58,27 @@ class Pdo
      */
     public function execute($sql, $params = [])
     {
-        try {
-            $this->saveSql($sql, $params);
-            $connection = $this->connection();
+        $this->saveSql($sql, $params); 
+        $connection = $this->connection();
+        try {                       
             $statement = $connection->prepare($sql);
             $statement->setFetchMode(\PDO::FETCH_ASSOC);
             $statement->execute($params);
-            $this->insertId = $connection->insertId();
-            $this->affectRows = $statement->rowCount();
+            $this->lastInsertId = $connection->lastInsertId();
+            $this->rowCount = $statement->rowCount();
         }catch(\PDOException $e){
             throw new \Exception('sql error:' . $this->sql . PHP_EOL . json_encode($this->params));
         }
     }  
 
-    public function affectRows()
+    public function rowCount()
     {
-        return $this->affectRows;
+        return $this->rowCount;
     }
 
-    public function insertId()
+    public function lastInsertId()
     {
-        return $this->insertId;
+        return $this->lastInsertId;
     }
 
     /**
@@ -122,8 +123,8 @@ class Pdo
                 $this->config['option']['password']
             );
             $this->connection->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-            $this->connection->exec("SET NAMES '{" .
-                 $this->config['option']['charset'] . "}'");
+            $this->connection->exec("SET NAMES '" .
+                 $this->config['option']['charset'] . "'");
         }
         return $this->connection;
     }

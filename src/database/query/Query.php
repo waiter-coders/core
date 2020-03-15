@@ -243,7 +243,7 @@ class Query
         list($this->sql, $this->sqlParams) = [$sql, $params];
         $connection = $this->connection('write');
         $connection->execute($sql, $params);
-        return $connection->lastAffectRows();
+        return $connection->rowCount();
     }
 
     // 递增数据
@@ -268,7 +268,7 @@ class Query
         list($this->sql, $this->sqlParams) = [$sql, $params];
         $connection = $this->connection('write');
         $connection->execute($sql, $params);
-        return $connection->lastAffectRows();
+        return $connection->rowCount();
     }
 
     private function connection($database)
