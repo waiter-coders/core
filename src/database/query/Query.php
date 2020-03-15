@@ -3,16 +3,19 @@ namespace waiterphp\core\database\Query;
 use waiterphp\core\database\query\parse\Where;
 use waiterphp\core\database\query\parse\Join;
 use waiterphp\core\database\query\parse\Update;
-use waiterphp\core\database\Database;
+use waiterphp\core\database\connection\Selector;
 
 /**
  * 查询构造器，用于构造一条sql语句
  */
 class Query
 {
-    public $connection = 'default'; // public不太好TODO
-    public $columns = '*';
+    // 基础信息
+    public $name = null;
     public $table = null;
+    
+    // sql相关
+    public $columns = '*';
     public $join = '';
     public $where = [];
     public $groupBy = '';
@@ -20,14 +23,16 @@ class Query
     public $orderBy = '';
     public $limit = 10000; // 默认限制，最大一万条
     public $offset = 0;
+    private $database = '';
 
+    // sql记录
     private $sql = '';
     private $sqlParams = [];
 
-    public function __construct($table, $connection)
+    public function __construct($table, $name)
     {
         $this->table = $table;
-        $this->connection = $connection;
+        $this->name = $name;
     }
 
     /*
@@ -81,6 +86,12 @@ class Query
         return $this;
     }
 
+    public function database($database)
+    {
+        $this->database = $database;
+        return $this;
+    }
+
     /*
      * 获取数据的相关方法
      */
@@ -88,7 +99,7 @@ class Query
     {
         list($sql, $params) = $this->makeSelectSql();
         list($this->sql, $this->sqlParams) = [$sql, $params];
-        return Database::connection($this->connection)->fetchAll($sql, $params);
+        return $this->connection('read')->fetchAll($sql, $params);
     }
 
     public function fetchRow()
@@ -96,7 +107,7 @@ class Query
         $this->limit = 1;
         list($sql, $params) = $this->makeSelectSql();
         list($this->sql, $this->sqlParams) = [$sql, $params];
-        return Database::connection($this->connection)->fetchRow($sql, $params);
+        return $this->connection('read')->fetchRow($sql, $params);
     }
 
     
@@ -106,7 +117,7 @@ class Query
         $this->columns = $column;
         list($sql, $params) = $this->makeSelectSql();
         list($this->sql, $this->sqlParams) = [$sql, $params];
-        return Database::connection($this->connection)->fetchColumn($sql, $params);
+        return $this->connection('read')->fetchColumn($sql, $params);
     }
 
     public function fetchColumns($column)
@@ -216,8 +227,9 @@ class Query
         $sql = sprintf('insert into %s (%s) values (%s)', $this->table, $columns, $values);
         $params = array_values($data);
         list($this->sql, $this->sqlParams) = [$sql, $params];
-        Database::connection($this->connection)->execute($sql, $params);
-        return Database::connection($this->connection)->lastInsertId();
+        $connection = $this->connection('write');
+        $connection->execute($sql, $params);
+        return $connection->lastInsertId();
     }
 
     // 更新数据
@@ -229,8 +241,9 @@ class Query
         $sql = sprintf('update %s set %s where %s', $this->table, $updateSql, $where);
         $params = array_merge($updateParams, $params);
         list($this->sql, $this->sqlParams) = [$sql, $params];
-        Database::connection($this->connection)->execute($sql, $params);
-        return Database::connection($this->connection)->lastAffectRows();
+        $connection = $this->connection('write');
+        $connection->execute($sql, $params);
+        return $connection->lastAffectRows();
     }
 
     // 递增数据
@@ -253,8 +266,15 @@ class Query
         list($where, $params) = Where::parse($this->where);
         $sql = sprintf('delete from %s where %s;', $this->table, $where);
         list($this->sql, $this->sqlParams) = [$sql, $params];
-        Database::connection($this->connection)->execute($sql, $params);
-        return Database::connection($this->connection)->lastAffectRows();
+        $connection = $this->connection('write');
+        $connection->execute($sql, $params);
+        return $connection->lastAffectRows();
+    }
+
+    private function connection($database)
+    {
+        $database = $this->database != '' ? $this->database : $database;
+        return Selector::select($this->name, $database);
     }
 
     // 输出sql
