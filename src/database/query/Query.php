@@ -99,7 +99,7 @@ class Query
     {
         list($sql, $params) = $this->makeSelectSql();
         list($this->sql, $this->sqlParams) = [$sql, $params];
-        return $this->connection('read')->fetchAll($sql, $params);
+        return $this->connection('read')->execute($sql, $params, 'fetchAll');
     }
 
     public function fetchRow()
@@ -107,7 +107,7 @@ class Query
         $this->limit = 1;
         list($sql, $params) = $this->makeSelectSql();
         list($this->sql, $this->sqlParams) = [$sql, $params];
-        return $this->connection('read')->fetchRow($sql, $params);
+        return $this->connection('read')->execute($sql, $params, 'fetch');
     }
 
     
@@ -117,7 +117,7 @@ class Query
         $this->columns = $column;
         list($sql, $params) = $this->makeSelectSql();
         list($this->sql, $this->sqlParams) = [$sql, $params];
-        return $this->connection('read')->fetchColumn($sql, $params);
+        return $this->connection('read')->execute($sql, $params, 'fetchColumn');
     }
 
     public function fetchColumns($column)
@@ -228,8 +228,7 @@ class Query
         $params = array_values($data);
         list($this->sql, $this->sqlParams) = [$sql, $params];
         $connection = $this->connection('write');
-        $connection->execute($sql, $params);
-        return $connection->lastInsertId();
+        return $connection->execute($sql, $params, 'lastInsertId');
     }
 
     // 更新数据
@@ -242,8 +241,7 @@ class Query
         $params = array_merge($updateParams, $params);
         list($this->sql, $this->sqlParams) = [$sql, $params];
         $connection = $this->connection('write');
-        $connection->execute($sql, $params);
-        return $connection->rowCount();
+        return $connection->execute($sql, $params, 'rowCount');
     }
 
     // 递增数据
@@ -267,8 +265,7 @@ class Query
         $sql = sprintf('delete from %s where %s;', $this->table, $where);
         list($this->sql, $this->sqlParams) = [$sql, $params];
         $connection = $this->connection('write');
-        $connection->execute($sql, $params);
-        return $connection->rowCount();
+        return $connection->execute($sql, $params, 'rowCount');
     }
 
     private function connection($database)
