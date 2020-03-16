@@ -29,7 +29,6 @@ class Database
         return new Query($table, $name);
     }  
 
-    // 绑定事务区域
     public static function transaction(callable $method, $name = '')
     {
         $connection = Selector::select($name);

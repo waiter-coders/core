@@ -11,5 +11,14 @@ class InsertTest extends Base
         parent::SetUp();
         $this->table = new ArticleDao();
     }
+
+    public function testDelete()
+    {
+        $result = $this->table->insert([
+            'userId'=>2,
+            'title'=>'insert data'
+        ]);
+        // $this->assertTrue($result > 0);
+    }
     
 } 

@@ -14,7 +14,7 @@ class SelectTest extends Base
     public function testSimpleSelect()
     {
         $data = $this->table
-            ->fields('title, hit')
+            ->select('title, hit')
             ->orderBy('hit desc')
             ->limit(2)
             ->offset(1)
@@ -24,9 +24,15 @@ class SelectTest extends Base
         $this->assertTrue($data[0]['hit'] >= $data[0]['hit']);
     }
 
-    public function testListAfterId()
+    public function testFetchByIds()
     {
-        $data = $this->table->listAfterId(2, 3);
+        $data = $this->table->fetchByIds([2, 3]);
+        $this->assertTrue(is_array($data) && count($data) == 2);
+    }
+
+    public function testFetchAfterId()
+    {
+        $data = $this->table->fetchAfterId(2, 3);
         $this->assertTrue(is_array($data) && count($data) == 3);
     }
 
@@ -40,5 +46,14 @@ class SelectTest extends Base
     {
         $data = $this->table->infoByField('userId', 1);
         $this->assertEquals(array_keys($data), ['articleId', 'title', 'addTime', 'hit']);
+    }
+
+    public function testMuliSelect()
+    {
+        $data = $this->table->where(['userId'=>1])->fetchAll();
+        $data = $this->table->where(['userId !='=>1])->fetchAll();
+        $this->assertTrue(is_array($data) && count($data) > 0);
+        $sql = $this->table->select('title')->where(['articleId'=>4])->sql();
+        echo $sql;
     }
 } 

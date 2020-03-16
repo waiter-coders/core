@@ -7,7 +7,7 @@ class SelectTest extends Base
     public function testSimpleSelect()
     {
         $data = table('article')
-            ->fields('title, hit')
+            ->select('title, hit')
             ->orderBy('hit desc')
             ->limit(2)
             ->offset(1)

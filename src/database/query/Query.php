@@ -11,18 +11,18 @@ use waiterphp\core\database\connection\Selector;
 class Query
 {
     // 基础信息
-    public $name = null;
-    public $table = null;
+    private $name = null;
+    private $table = null;
     
     // sql相关
-    public $columns = '*';
-    public $join = '';
-    public $where = [];
-    public $groupBy = '';
-    public $having ='';
-    public $orderBy = '';
-    public $limit = 10000; // 默认限制，最大一万条
-    public $offset = 0;
+    private $columns = '*';
+    private $join = '';
+    private $where = [];
+    private $groupBy = '';
+    private $having ='';
+    private $orderBy = '';
+    private $limit = 10;
+    private $offset = 0;
     private $database = '';
 
     // sql记录
@@ -40,7 +40,7 @@ class Query
      */
 
     // 设置查询字段
-    public function fields($columns)
+    public function select($columns)
     {
         $this->columns = is_array($columns) ? implode(',', $columns) : $columns;
         return $this;
@@ -99,7 +99,9 @@ class Query
     {
         list($sql, $params) = $this->makeSelectSql();
         list($this->sql, $this->sqlParams) = [$sql, $params];
-        return $this->connection('read')->execute($sql, $params, 'fetchAll');
+        $data = $this->connection('read')->execute($sql, $params, 'fetchAll');
+        $this->clearState();
+        return $data;
     }
 
     public function fetchRow()
@@ -107,7 +109,9 @@ class Query
         $this->limit = 1;
         list($sql, $params) = $this->makeSelectSql();
         list($this->sql, $this->sqlParams) = [$sql, $params];
-        return $this->connection('read')->execute($sql, $params, 'fetch');
+        $data = $this->connection('read')->execute($sql, $params, 'fetch');
+        $this->clearState();
+        return $data;
     }
 
     
@@ -117,7 +121,9 @@ class Query
         $this->columns = $column;
         list($sql, $params) = $this->makeSelectSql();
         list($this->sql, $this->sqlParams) = [$sql, $params];
-        return $this->connection('read')->execute($sql, $params, 'fetchColumn');
+        $data = $this->connection('read')->execute($sql, $params, 'fetchColumn');
+        $this->clearState();
+        return $data;
     }
 
     public function fetchColumns($column)
@@ -137,7 +143,7 @@ class Query
     public function count($column = '*')
     {
 		$this->orderBy = '';
-        return $this->fetchColumn('count('.$column.') as num');
+        return (int) $this->fetchColumn('count('.$column.') as num');
     }
 
     public function max($column)
@@ -228,7 +234,9 @@ class Query
         $params = array_values($data);
         list($this->sql, $this->sqlParams) = [$sql, $params];
         $connection = $this->connection('write');
-        return $connection->execute($sql, $params, 'lastInsertId');
+        $insertId = $connection->execute($sql, $params, 'lastInsertId');
+        $this->clearState();
+        return $insertId;
     }
 
     // 更新数据
@@ -241,7 +249,9 @@ class Query
         $params = array_merge($updateParams, $params);
         list($this->sql, $this->sqlParams) = [$sql, $params];
         $connection = $this->connection('write');
-        return $connection->execute($sql, $params, 'rowCount');
+        $rowCount = $connection->execute($sql, $params, 'rowCount');
+        $this->clearState();
+        return $rowCount;
     }
 
     // 递增数据
@@ -265,7 +275,9 @@ class Query
         $sql = sprintf('delete from %s where %s;', $this->table, $where);
         list($this->sql, $this->sqlParams) = [$sql, $params];
         $connection = $this->connection('write');
-        return $connection->execute($sql, $params, 'rowCount');
+        $rowCount = $connection->execute($sql, $params, 'rowCount');
+        $this->clearState();
+        return $rowCount;
     }
 
     private function connection($database)
@@ -277,12 +289,13 @@ class Query
     // 输出sql
     public function sql()
     {
-        $sql = $this->sql;
-        $params = $this->sqlParams;
-        if ($sql == '') {
-            list($sql, $params) = $this->makeSelectSql();
-        }
+        // $sql = $this->sql;
+        // $params = $this->sqlParams; TODO
+        // if ($sql == '') {
+        //     list($sql, $params) = $this->makeSelectSql();
+        // }
         $result = '';
+        list($sql, $params) = $this->makeSelectSql();
         $sql = explode('?', $sql);
         foreach ($sql as $key =>$value) {
             $result .= $value;
@@ -291,5 +304,18 @@ class Query
             }
         }
         return $result;
+    }
+
+    private function clearState()
+    {
+        $this->columns = '*';
+        $this->join = '';
+        $this->where = [];
+        $this->groupBy = '';
+        $this->having ='';
+        $this->orderBy = '';
+        $this->limit = 10;
+        $this->offset = 0;
+        $this->database = '';
     }
 }

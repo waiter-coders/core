@@ -6,160 +6,102 @@ namespace waiterphp\core\database\table;
 class Config
 {
     // 数据库连接信息
-    public $table; // 表名
-    public $primaryKey; // 主键
-    public $database = null;
-    public $joinTables = []; // 连接从表
+    private $table; // 表名
+    private $primaryKey; // 主键
+    private $name = ''; // 数据库配置名
 
     // 字段信息
-    public $fields = []; // 字段基础信息
-    public $fieldsGroups = []; // 字段分组
-    public $readonlyFields = []; // 不可被外部修改的字段
-    public $virtualField = []; // 虚拟字段（外部可见，但内部其实没有）
-    public $fieldsFilters = []; // 数据过滤器
+    private $fields = []; // 字段基础信息
+    // private $fieldsGroups = []; // 字段分组
+    private $readonlyFields = []; // 不可被外部修改的字段
+    // private $fieldsFilters = []; // 数据过滤器
 
     // query相关
-    public $defaultQuery = []; // 默认查询
-    public $softDeleteFields = false; // 软删除标识字段，默认为不存在
+    private $defaultWhere = []; // 默认查询
 
-    //
-    private static $baseType = [
-        'number'=>['action'=>'regex', 'errorMessage'=>'必须为数字', 'regex'=>'\d+'], // 对应tinyint int 等
-		'decimal'=>['action'=>'regex', 'errorMessage'=>'必须为数字', 'regex'=>'\d+.\d+'], // 对应tinyint int 等
-        'string'=>['action'=>'regex', 'errorMessage'=>'长度应该在@min～@max之间!', 'regex'=>'[\w|\W]{@min,@max}', 'min'=>1, 'max'=>255], // varchar char
-        'text'=>['type'=>'text', 'filter'=>'string', 'params'=>'html'], // 没有html标签，
-        'html'=>['action'=>'regex', 'errorMessage'=>'不能为空！', 'regex'=>'[\w|\W]{1,}'], //
-        'select'=>1, // 单选
-        'multiSelect'=>1, // 多选
-        'linkSelect'=>1, // 多字段层级联动
-        'date'=>1, //
-        'datetime'=>1,
-        'month'=>1,
-        'year'=>1,
-        'image'=>1, // path标准化
-        'file'=>1, // path标准化
-        'phone'=>1, // 手机号
-        'email'=>['action'=>'regex', 'errorMessage'=>'邮箱格式错误', 'regex'=>'\w+@\w(\.\w+)+'],
-        'json'=>['type'=>'varchar', 'filter'=>'string', 'params'=>'json'],
-
-        // json path url
+    private static $typeMap = [
+        'number'=>'',
+        'string'=>'',
+        'datetime'=>'',
+        'json'=>''
     ];
-
-    private static $baseFilters = [
-
-    ];
-
-    public function __construct($table = '')
-    {
-        $this->setTable($table);
-    }
-
-    public function setDatabase(array $database)
-    {
-        $this->database = $database;
-    }
 
     public function setTable($table)
     {
         $this->table = $table;
     }
 
-    public function setPrimaryKey($primaryKey)
+    public function setName(array $name)
+    {
+        $this->name = $name;
+    }
+
+    public function setPrimaryKey($primaryKey, $type = 'number', $rules = 'unsigned')
     {
         $this->primaryKey = $primaryKey;
         $this->fields[$primaryKey] = [
-            'name'=>'id',
-            'type'=>'number',
+            'type'=>$type,
             'primaryKey'=>true,
+            'rules'=>$rules
         ];
     }
 
-    public function setField($field, $type, $args = [])
+    public function setField($field, $type, $rules = [])
     {
-        $args = func_get_args();
-        $field = array_shift($args);
-        list($trueField, $field) = $this->formatField($field);
-        $type = array_shift($args);        
-        assert_exception(!isset($this->fields[$field]), 'field all ready set:'.$field);
-        assert_exception(isset(self::$baseType[$type]), 'field type not exist:' . $type);
-        $this->fields[$field] = ['field'=>$field, 'type'=>$type, 'name'=>$field];
-        $this->fields[$field] = array_merge($this->fields[$field], $this->analyzeFieldArgs($type, $args));
-        if (!empty($trueField)) {
-            $this->fields[$field]['trueField'] = $trueField;
-        }
-        return $this;
-    }
-
-    public function setFieldDefault($field, $value)
-    {
-        if (!isset($this->fields[$field])) {
-            throw new \Exception('not set field:'.$field);
-        }
-        $this->fields[$field]['default'] = $value;
-    }
-
-    // 设置join表
-    public function setJoinTable($joinTable, $mainField, $joinField = null)
-    {
-        list($table, $tableLabel) = explode(' ', $joinTable . ' ', 2);
-        $table = trim($table);$tableLabel = trim($tableLabel);
-        $tableLabel = empty($tableLabel) ? $table : $tableLabel;
-        $joinField = empty($joinField) ? $mainField : $joinField;
-        $this->joinTables[$tableLabel] = ['table'=>$table, 'mainField'=>$mainField, 'joinField'=>$joinField];
-    }
-
-    public function leftJoin($joinTable, $mainField, $joinField = null)
-    {
-        $this->setJoinTable($joinTable, $mainField, $joinField);
+        $rules = func_get_args();
+        assert_exception(count($rules) >= 2, 'field args error:' . $field);
+        $field = array_shift($rules);
+        $type = array_shift($rules);        
+        assert_exception(!isset($this->fields[$field]), 'field allready set:'.$field);
+        assert_exception(isset(self::$typeMap[$type]), 'field type not exist:'  . $type . ' in ' . $field);        
+        $this->fields[$field] = ['field'=>$field, 'type'=>$type];
+        $this->fields[$field] = array_merge($this->fields[$field], $this->analyzeField($type, $rules));
     }
 
     // 设置默认查询条件
-    public function setDefaultQuery(array $condition)
+    public function setDefaultWhere(array $where)
     {
-        $this->defaultQuery = $condition;
+        $this->defaultWhere = $where;
+    }
+
+    public function defaultWhere()
+    {
+        return $this->defaultWhere;
     }
 
     // 设置信息不可以被修改
-    public function setFieldsReadonly($fields)
+    public function setReadonly($fields)
     {
-        $fields = func_get_args();
-        $fields = implode(',', $fields);
-        $fields = explode(',', $fields);
-        $fields = array_flip($fields);
-        $this->readonlyFields = array_merge($this->readonlyFields, $fields);
+        $this->readonlyFields = $fields;
     }
 
-    public function setFilter($field, $input, $inputParams = [], callable $output = null, $outputParams = [])
+    public function fields()
     {
-        assert_exception((is_string($input) || (is_callable($input) && is_callable($output))), 'filter set error');
-        $this->fieldsFilters[$field][] = ['input'=>$input, 'inputParams'=>$inputParams, 'output'=>$output, 'outputParams'=>$outputParams];
+        return array_keys($this->fields);
     }
 
-    public function getFilterByName($filterName)
+    public function field($field)
     {
-        return [function(){}, function(){}];
+        return $this->fields[$field];
     }
 
-    public function setSoftDelete($field)
+    public function table()
     {
-        if (!isset($this->fields[$field])) {
-            throw new \Exception('soft delete field not exist:' . $field);
-        }
-        $this->softDeleteFields = $field;
+        return $this->table;
     }
 
-    public function setWhereFields()
+    public function name()
     {
-
+        return $this->name;
     }
 
-    public function setWhereFieldAction($field, $whitelist = [], $blacklist)
+    public function primaryKey()
     {
-
+        return $this->primaryKey;
     }
 
     // 解析字段参数
-    public function analyzeFieldArgs($type, $args)
+    private function analyzeField($type, $args)
     {
         $params = [];
         while (!empty($args)) {
@@ -171,27 +113,22 @@ class Config
             // 字符串类型
             if (is_string($arg)) {
                 // http为baseUrl(临时添加)
-                if (substr($arg, 0, 4) == 'http') {
-                    $params['baseUrl'] = $arg;
-                    continue;
-                }
+                // if (substr($arg, 0, 4) == 'http') {
+                //     $params['baseUrl'] = $arg;
+                //     continue;
+                // }
 
                 // unsigned识别
                 if ($arg == 'unsigned') {
                     $params['unsigned'] = true;
                     continue;
                 }
-                // 含有中文的被认为是字段名
-                if (preg_match("/[\x7f-\xff]/", $arg)) {
-                    $params['name'] = $arg;
-                    continue;
-                }
 
-                // 前置下划线被认为是过滤器
-                if ($arg[0] == '_') {
-                    $this->fieldsFilters[$type]['regex'] = ltrim($arg, '_');
-                    continue;
-                }
+                // // 前置下划线被认为是过滤器
+                // if ($arg[0] == '_') {
+                //     $this->fieldsFilters[$type]['regex'] = ltrim($arg, '_');
+                //     continue;
+                // }
             }
             // 数字认为是长度
             if (is_numeric($arg)) {
@@ -199,32 +136,21 @@ class Config
                 continue;
             }
             // 数据被认为是map
-            if (is_array($arg)) {
+            if (is_array($arg)) { // TOCO default map
                 $params['map'] = $arg;
                 continue;
             }
-            // 可调用函数
-            if (is_callable($arg)) {
-                $params['type'] = '';
-                $params['filter'] = 'DisplayFilter';
-                $params['call'] = $arg;
-                $params['isVirtual'] = true;
-                continue;
-            }
+            // // 可调用函数
+            // if (is_callable($arg)) {
+            //     $params['type'] = '';
+            //     $params['filter'] = 'DisplayFilter';
+            //     $params['call'] = $arg;
+            //     $params['isVirtual'] = true;
+            //     continue;
+            // }
 
             throw new \Exception('dao field args error:' . json_encode($arg));
         }
         return $params;
-    }
-
-    private function formatField($field)
-    {
-        if (strpos($field, ' ') === false) {
-            return ['', $field];
-        } else {
-            $field = str_replace(' as ', ' ', $field);
-            $field = trim(preg_replace('/[ ]{2,}/i', ' ', $field));
-            return explode(' ',  $field, 2);
-        }
     }
 }

@@ -4,15 +4,16 @@ namespace waiterphp\core\database\table;
 
 class Filter
 {
-    private $daoConfig;
+    private $config;
 
-    public function __construct(Config $daoConfig)
+    public function __construct(Config $config)
     {
-        $this->daoConfig = $daoConfig;
+        $this->config = $config;
     }
 
     public function input($field, $value = '')
     {
+        return $field;
         return $this->filterField($field, $value, 'input');
     }
 
@@ -33,8 +34,8 @@ class Filter
         // 过滤数据
         else {
             $value = is_array($value) ? json_encode($value) : $value;
-            return isset($this->daoConfig->fieldsFilters[$field]) ?
-                DaoFilter_Factory::filter($this->daoConfig->fieldsFilters[$field], $value, $type) : $value;
+            return isset($this->config->fieldsFilters[$field]) ?
+                DaoFilter_Factory::filter($this->config->fieldsFilters[$field], $value, $type) : $value;
         }
     }
 }

@@ -12,4 +12,9 @@ class DeleteTest extends Base
         $this->table = new ArticleDao();
     }
     
+    public function testDelete()
+    {
+        $result = $this->table->deleteById(1);
+        // $this->assertTrue($result > 0);
+    }
 } 

@@ -13,7 +13,6 @@ class UpdateTest extends TestCase
         ])->update([
             'hit'=>$randNum
         ]);
-
         $hit = table('article')->where([
             'articleId'=>1
         ])->fetchColumn('hit');

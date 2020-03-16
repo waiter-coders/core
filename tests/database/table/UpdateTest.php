@@ -12,4 +12,12 @@ class UpdateTest extends Base
         $this->table = new ArticleDao();
     }
     
+
+    public function testUpdate()
+    {
+        $result = $this->table->updateById(1, [
+            'title'=>'dao update'
+        ]);
+        // $this->assertTrue($result > 0);
+    }
 } 
